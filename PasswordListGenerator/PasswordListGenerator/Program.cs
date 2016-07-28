@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Text;
-using CommandLine.Text;
 
 namespace PasswordListGenerator
 {
@@ -13,29 +11,38 @@ namespace PasswordListGenerator
 		private static void Main(string[] args)
 		{
 			var options = new Options();
-			if (CommandLine.Parser.Default.ParseArguments(args, options))
+			string invokedVerb = null;
+			object invokedVerbInstance = null;
+
+			if (!CommandLine.Parser.Default.ParseArguments(args, options, (verb, subOptions) =>
 			{
-				Console.WriteLine("Working with encodings:\nIN: {0}\nOUT: {1}\nFilename: {2}\n",
-					options.InFilesEncoding,
-					options.OutFilesEncoding,
-					options.KeywordsFilename);
-				
-				TrySetEncodings(options.InFilesEncoding, options.OutFilesEncoding);
-				using (var stream = new StreamReader(options.KeywordsFilename, _inFileEncoding))
+				invokedVerb = verb;
+				invokedVerbInstance = subOptions;
+			}))
+			{
+				Environment.Exit(CommandLine.Parser.DefaultExitCodeFail);
+			}
+
+			//TrySetEncodings(options.InFilesEncoding, options.OutFilesEncoding);
+
+			if (IsVerbNotSpecified(invokedVerb, invokedVerbInstance))
+			{
+				Console.WriteLine("Должны обработать команды по умолчанию");
+			}
+			/*
+			using (var stream = new StreamReader(options.KeywordsFilename, _inFileEncoding))
+			{
+				while (!stream.EndOfStream)
 				{
-					while (!stream.EndOfStream)
-					{
-						var keyword = stream.ReadLine();
-						Console.OutputEncoding = _inFileEncoding;
-						Console.WriteLine(keyword);
-					}
+					var keyword = stream.ReadLine();
+					Console.OutputEncoding = _inFileEncoding;
+					Console.WriteLine(keyword);
 				}
 			}
-			else
-			{
-				Console.WriteLine(HelpText.AutoBuild(options));
-			}
+			*/
 		}
+
+		private static bool IsVerbNotSpecified(string invokedVerb, object invokedVerbInstance) => string.IsNullOrEmpty(invokedVerb) || invokedVerbInstance.Equals(null);
 
 		private static void TrySetEncodings(string inEncoding, string outEncoding)
 		{
