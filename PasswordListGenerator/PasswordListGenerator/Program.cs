@@ -63,6 +63,7 @@ namespace PasswordListGenerator
 							jsonString = stream.ReadToEnd();
 						}
 					}
+
 					if (string.IsNullOrEmpty(jsonString))
 					{
 						jsonString = Resources.EnglishLeetDict;
@@ -84,32 +85,35 @@ namespace PasswordListGenerator
 						.Split(wordToSubs, string.Empty)
 						.Where(x => !string.IsNullOrEmpty(x))
 						.ToArray();
+
+					Dictionary<char, List<string>> subsSymbols;
+					switch (subsOptions.Method)
+					{
+						case SubsMethod2.Cyrillic:
+							subsSymbols = alphabet["cyrillic"];
+							break;
+
+						case SubsMethod2.GoodLeet:
+							subsSymbols = alphabet["good-leet"];
+							break;
+
+						case SubsMethod2.MadLeet:
+							subsSymbols = alphabet["mad-leet"];
+							break;
+
+						case SubsMethod2.Pronunciation:
+							subsSymbols = alphabet["pronunciation"];
+							break;
+
+						default:
+							subsSymbols = new Dictionary<char, List<string>>();
+							break;
+					}
 					var wordsToSubs = new List<string[]> { inputSymbols };
 					for (var index = 0; index < charKeys.Length; index++)
 					{
-						List<string> subsSymbols;
-						switch (subsOptions.Method)
-						{
-							case SubsMethod.Cyrillic:
-								subsSymbols = new List<string> {alphabet[charKeys[index]].Cyrillic};
-								break;
-
-							case SubsMethod.GoodLeet:
-								subsSymbols = alphabet[charKeys[index]].GoodLeet;
-								break;
-								
-							case SubsMethod.MadLeet:
-								subsSymbols = alphabet[charKeys[index]].MadLeet;
-								break;
-
-							case SubsMethod.Pronunciation:
-								subsSymbols = new List<string> {alphabet[charKeys[index]].Pronunciation};
-								break;
-
-							default:
-								subsSymbols = new List<string>();
-								break;
-						}
+						
+						
 						
 						var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(wordsToSubs, subsSymbols, index);
 						wordsToSubs.AddRange(newWordsToSubs);
@@ -143,7 +147,7 @@ namespace PasswordListGenerator
 		private static bool ValidateJsonScheme(string jsonString)
 		{
 			var schemaGenerator = new JSchemaGenerator();
-			var schemaForLetter = schemaGenerator.Generate(typeof (Dictionary<char, SubsLetter>));
+			var schemaForLetter = schemaGenerator.Generate(typeof (Dictionary<string, SubsMethod>));
 			try
 			{
 				var jsonObj = JObject.Parse(jsonString);
@@ -157,7 +161,7 @@ namespace PasswordListGenerator
 		}
 
 		private static List<string[]> GetAllPossibleSubstitutesForEveryWord(List<string[]> wordsToSubs,
-			List<string> subsSymbols, int index)
+			Dictionary<char, List<string>> subsSymbols, int index)
 		{
 			var result = new List<string[]>();
 
@@ -169,10 +173,11 @@ namespace PasswordListGenerator
 			return result;
 		}
 
-		private static List<string[]> GetAllPossibleSubstitutesForSymbol(List<string> subsSymbols, string[] word, int index)
+		private static List<string[]> GetAllPossibleSubstitutesForSymbol(Dictionary<char, List<string>> subsSymbols, string[] word, int index)
 		{
 			var result = new List<string[]>();
-			foreach (var symbol in subsSymbols)
+			var key = char.ToUpper(word[index][0]);
+			foreach (var symbol in subsSymbols[key])
 			{
 				var buf = (string[])word.Clone();
 				buf[index] = symbol;
@@ -181,9 +186,9 @@ namespace PasswordListGenerator
 			return result;
 		}
 
-		private static Dictionary<char, SubsLetter> GetAlphabet(string jsonString)
+		private static Dictionary<string, SubsMethod> GetAlphabet(string jsonString)
 		{
-			return JsonConvert.DeserializeObject<Dictionary<char, SubsLetter>>(jsonString);
+			return JsonConvert.DeserializeObject<Dictionary<string, SubsMethod>>(jsonString);
 		}
 
 		private static bool IsVerbNotSpecified(string invokedVerb, object invokedVerbInstance)

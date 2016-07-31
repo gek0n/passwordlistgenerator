@@ -3,10 +3,9 @@ using Newtonsoft.Json;
 
 namespace PasswordListGenerator
 {
-	[JsonObject]
-	public class SubsMethod
+	[JsonDictionary]
+	public class SubsMethod : Dictionary<char, List<string>>
 	{
-		[JsonDictionary("alphabet")]
-		public Dictionary<char, List<string>> Alphabet { get; set; } 
+
 	}
 }
