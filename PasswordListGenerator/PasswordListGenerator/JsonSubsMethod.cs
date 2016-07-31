@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace PasswordListGenerator
 {
 	[JsonDictionary]
-	public class SubsMethod : Dictionary<char, List<string>>
+	public class JsonSubsMethod : Dictionary<char, List<string>>
 	{
 
 	}

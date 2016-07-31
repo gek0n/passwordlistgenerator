@@ -14,40 +14,31 @@ namespace PasswordListGenerator
 {
 	class Substitution
 	{
-		private readonly List<string[]> _wordsToSubs;
+		private readonly List<string[]> _wordsToSubs;  // TODO: remove this member (not global)
+
+		private readonly string _sourceWord;
+		private readonly SubsMethod _method;
+		private readonly string _dictFilename;
+		private readonly string _outFilename;
+		private readonly Encoding _inEncoding;
+		private readonly Encoding _outEncoding;
+
 		public Substitution(SubstituteSubOptions subsOptions)
 		{ 
-			var wordToSubs = subsOptions.WordToSubs;
+			_sourceWord = subsOptions.WordToSubs;
+			_method = subsOptions.Method;
+			_dictFilename = subsOptions.DictFilename;
+			_outFilename = subsOptions.OutFilename;
+			_inEncoding = TryGetEncoding(subsOptions.InEncoding);
+			_outEncoding = TryGetEncoding(subsOptions.OutEncoding);
 
-			Console.WriteLine("Subs verb");
-			Console.WriteLine("wordToSub = " + wordToSubs);
-			Console.WriteLine("method = " + subsOptions.Method);
-			Console.WriteLine("dictPath = " + subsOptions.DictFilepath);
+			Console.WriteLine("wordToSub = " + _sourceWord);
+			Console.WriteLine("method = " + _method);
+			Console.WriteLine("dictPath = " + _dictFilename);
 			Console.WriteLine("========================");
-			Encoding inFileEncoding;
-			try
-			{
-				inFileEncoding = Encoding.GetEncoding(subsOptions.InEncoding);
-			}
-			catch (ArgumentException)
-			{
-				Console.WriteLine($"Error using {subsOptions.InEncoding} encoding. Fallback to utf-8");
-				inFileEncoding = Encoding.UTF8;
-			}
+			
 
-			var jsonString = "";
-			if (!string.IsNullOrEmpty(subsOptions.DictFilepath))
-			{
-				using (var stream = new StreamReader(subsOptions.DictFilepath, inFileEncoding))
-				{
-					jsonString = stream.ReadToEnd();
-				}
-			}
-
-			if (string.IsNullOrEmpty(jsonString))
-			{
-				jsonString = Resources.EnglishLeetDict;
-			}
+			var jsonString = ReadJson();
 
 			var isValid = ValidateJsonScheme(jsonString);
 			if (!isValid)
@@ -55,49 +46,73 @@ namespace PasswordListGenerator
 				Console.WriteLine("Json syntax is invalid. Please check your file");
 				return;
 			}
-			var alphabet = GetAlphabet(jsonString);
+			var availableMethods = GetAvailableMethods(jsonString);
 
-			var charKeys = wordToSubs
+			var charKeys = _sourceWord
 				.ToCharArray()
 				.Select(char.ToUpper)
 				.ToArray();
 			var inputSymbols = Regex
-				.Split(wordToSubs, string.Empty)
+				.Split(_sourceWord, string.Empty)
 				.Where(x => !string.IsNullOrEmpty(x))
 				.ToArray();
 
-			Dictionary<char, List<string>> subsSymbols;
-			switch (subsOptions.Method)
-			{
-				case SubsMethod2.Cyrillic:
-					subsSymbols = alphabet["cyrillic"];
-					break;
-
-				case SubsMethod2.GoodLeet:
-					subsSymbols = alphabet["good-leet"];
-					break;
-
-				case SubsMethod2.MadLeet:
-					subsSymbols = alphabet["mad-leet"];
-					break;
-
-				case SubsMethod2.Pronunciation:
-					subsSymbols = alphabet["pronunciation"];
-					break;
-
-				default:
-					subsSymbols = new Dictionary<char, List<string>>();
-					break;
-			}
+			var alphabet = GetAlphabetForMethod(_method, availableMethods);
+			
 			_wordsToSubs = new List<string[]> { inputSymbols };
 			for (var index = 0; index < charKeys.Length; index++)
 			{
-
-
-
-				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, subsSymbols, index);
+				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, alphabet, index);
 				_wordsToSubs.AddRange(newWordsToSubs);
 			}
+		}
+
+		private Encoding TryGetEncoding(string encoding)
+		{
+			try
+			{
+				return Encoding.GetEncoding(encoding);
+			}
+			catch (ArgumentException)
+			{
+				Console.WriteLine($"Error using {encoding} encoding. Fallback to utf-8");
+				return Encoding.UTF8;
+			}
+		}
+
+		private Dictionary<char, List<string>> GetAlphabetForMethod(SubsMethod method, Dictionary<string, JsonSubsMethod> availableMethods)
+		{
+			switch (method)
+			{
+				case SubsMethod.Cyrillic:
+					return availableMethods["cyrillic"];
+
+				case SubsMethod.GoodLeet:
+					return availableMethods["good-leet"];
+
+				case SubsMethod.MadLeet:
+					return availableMethods["mad-leet"];
+
+				case SubsMethod.Pronunciation:
+					return availableMethods["pronunciation"];
+
+				default:
+					return null;
+			}
+		}
+
+		private string ReadJson()
+		{
+			string result;
+			if (string.IsNullOrEmpty(_dictFilename))
+			{
+				return Resources.EnglishLeetDict;
+			}
+			using (var stream = new StreamReader(_dictFilename, _inEncoding))
+			{
+				result = stream.ReadToEnd();
+			}
+			return string.IsNullOrEmpty(result) ? Resources.EnglishLeetDict : result;
 		}
 
 		public IEnumerable<string> GetResult()
@@ -109,7 +124,7 @@ namespace PasswordListGenerator
 		private bool ValidateJsonScheme(string jsonString)
 		{
 			var schemaGenerator = new JSchemaGenerator();
-			var schemaForLetter = schemaGenerator.Generate(typeof(Dictionary<string, SubsMethod>));
+			var schemaForLetter = schemaGenerator.Generate(typeof(Dictionary<string, JsonSubsMethod>));
 			try
 			{
 				var jsonObj = JObject.Parse(jsonString);
@@ -147,9 +162,9 @@ namespace PasswordListGenerator
 			return result;
 		}
 
-		private Dictionary<string, SubsMethod> GetAlphabet(string jsonString)
+		private Dictionary<string, JsonSubsMethod> GetAvailableMethods(string jsonString)
 		{
-			return JsonConvert.DeserializeObject<Dictionary<string, SubsMethod>>(jsonString);
+			return JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
 		}
 	}
 }

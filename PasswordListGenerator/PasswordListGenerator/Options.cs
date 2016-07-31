@@ -24,10 +24,13 @@ namespace PasswordListGenerator
 		public string WordToSubs { get; set; }
 
 		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of symbols with dicts for every symbol)")]
-		public string DictFilepath { get; set; }
+		public string DictFilename { get; set; }
 
-		[Option('m', "method", Required = false, DefaultValue = SubsMethod2.GoodLeet, HelpText = "Method to substitute letters in word")]
-		public SubsMethod2 Method { get; set; }
+		[Option('m', "method", Required = false, DefaultValue = SubsMethod.GoodLeet, HelpText = "Method to substitute letters in word")]
+		public SubsMethod Method { get; set; }
+
+		[Option('o', "out-file", Required = false, HelpText = "File to write output substitutions")]
+		public string OutFilename { get; set; }
 	}
 
 	public class CombineSubOptions : EncodingSubOptions
@@ -51,7 +54,7 @@ namespace PasswordListGenerator
 		public string OutEncoding { get; set; }
 	}
 
-	public enum SubsMethod2
+	public enum SubsMethod
 	{
 		Cyrillic,
 		MadLeet,

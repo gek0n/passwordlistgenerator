@@ -45,6 +45,7 @@ namespace PasswordListGenerator
 					break;
 
 				case "subs":
+					Console.WriteLine("Subs verb");
 					var subsOptions = (SubstituteSubOptions)invokedVerbInstance;
 
 					TrySetEncodings(subsOptions.InEncoding, subsOptions.OutEncoding);
