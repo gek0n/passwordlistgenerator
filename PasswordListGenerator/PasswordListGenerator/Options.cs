@@ -20,12 +20,19 @@ namespace PasswordListGenerator
 
 	public class SubstituteSubOptions : EncodingSubOptions
 	{
-		
+		[ValueOption(0)]
+		public string WordToSubs { get; set; }
+
+		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of symbols with dicts for every symbol)")]
+		public string DictFilepath { get; set; }
+
+		[Option('m', "method", Required = false, DefaultValue = SubsMethod.GoodLeet, HelpText = "Method to substitute letters in word")]
+		public SubsMethod Method { get; set; }
 	}
 
 	public class CombineSubOptions : EncodingSubOptions
 	{
-		[Option("max-length", Required = false, HelpText = "Number of words in one combination")]
+		[Option("max-length", Required = false, HelpText = "Number of words in one combination (between 2 and 20)")]
 		public ushort MaxLength { get; set; }
 
 		[Option('i', "in-file", Required = true, HelpText = "File with list of keywords to make combination")]
@@ -38,9 +45,17 @@ namespace PasswordListGenerator
 	public abstract class EncodingSubOptions
 	{
 		[Option("in-encoding", DefaultValue = "UTF-8", Required = false, HelpText = "Define input files encoding")]
-		public string InFilesEncoding { get; set; }
+		public string InEncoding { get; set; }
 
 		[Option("out-encoding", DefaultValue = "UTF-8", Required = false, HelpText = "Define output files encoding")]
-		public string OutFilesEncoding { get; set; }
+		public string OutEncoding { get; set; }
+	}
+
+	public enum SubsMethod2
+	{
+		Cyrillic,
+		MadLeet,
+		GoodLeet,
+		Pronunciation
 	}
 }
