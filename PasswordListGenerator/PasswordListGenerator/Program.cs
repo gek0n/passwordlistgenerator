@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using CommandLine;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
-using Newtonsoft.Json.Schema.Generation;
-using PasswordListGenerator.Properties;
 
 namespace PasswordListGenerator
 {
@@ -50,12 +41,7 @@ namespace PasswordListGenerator
 
 					TrySetEncodings(subsOptions.InEncoding, subsOptions.OutEncoding);
 					var subs = new Substitution(subsOptions);
-
-					var result = subs.GetResult();
-					foreach (var s in result)
-					{
-						Console.WriteLine(s);
-					}
+					subs.Process();
 					break;
 
 				default:

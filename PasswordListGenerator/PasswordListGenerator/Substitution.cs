@@ -12,12 +12,13 @@ using PasswordListGenerator.Properties;
 
 namespace PasswordListGenerator
 {
-	class Substitution
+	public class Substitution
 	{
-		private readonly List<string[]> _wordsToSubs;  // TODO: remove this member (not global)
+		private List<string[]> _wordsToSubs;
 
 		private readonly string _sourceWord;
 		private readonly SubsMethod _method;
+		private readonly bool _isIgnoreCase;
 		private readonly string _dictFilename;
 		private readonly string _outFilename;
 		private readonly Encoding _inEncoding;
@@ -25,46 +26,78 @@ namespace PasswordListGenerator
 
 		public Substitution(SubstituteSubOptions subsOptions)
 		{ 
-			_sourceWord = subsOptions.WordToSubs;
+			_sourceWord = subsOptions.SourceWord;
 			_method = subsOptions.Method;
+			_isIgnoreCase = subsOptions.IsIgnoreCase;
 			_dictFilename = subsOptions.DictFilename;
 			_outFilename = subsOptions.OutFilename;
 			_inEncoding = TryGetEncoding(subsOptions.InEncoding);
 			_outEncoding = TryGetEncoding(subsOptions.OutEncoding);
 
+			Console.WriteLine("========= Constructor ===========");
 			Console.WriteLine("wordToSub = " + _sourceWord);
 			Console.WriteLine("method = " + _method);
 			Console.WriteLine("dictPath = " + _dictFilename);
-			Console.WriteLine("========================");
-			
+			Console.WriteLine("=================================");
+		}
+
+		public void Process()
+		{
+			if (string.IsNullOrEmpty(_sourceWord))
+			{
+				return;
+			}
 
 			var jsonString = ReadJson();
 
-			var isValid = ValidateJsonScheme(jsonString);
-			if (!isValid)
+			if (!ValidateJsonScheme(jsonString))
 			{
 				Console.WriteLine("Json syntax is invalid. Please check your file");
 				return;
 			}
 			var availableMethods = GetAvailableMethods(jsonString);
 
-			var charKeys = _sourceWord
-				.ToCharArray()
-				.Select(char.ToUpper)
-				.ToArray();
-			var inputSymbols = Regex
-				.Split(_sourceWord, string.Empty)
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
+			var inputSymbols = SplitWordToStringArray(_sourceWord);
 
 			var alphabet = GetAlphabetForMethod(_method, availableMethods);
-			
+
 			_wordsToSubs = new List<string[]> { inputSymbols };
-			for (var index = 0; index < charKeys.Length; index++)
+			for (var index = 0; index < inputSymbols.Length; index++)
 			{
 				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, alphabet, index);
 				_wordsToSubs.AddRange(newWordsToSubs);
 			}
+			var result = _wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
+			GetResult(result);
+		}
+
+		private void GetResult(IEnumerable<string> result)
+		{
+			if (string.IsNullOrEmpty(_outFilename))
+			{
+				foreach (var s in result)
+				{
+					Console.WriteLine(s);
+				}
+			}
+			else
+			{
+				using (var stream = new StreamWriter(_outFilename, false, _outEncoding))
+				{
+					foreach (var s in result)
+					{
+						stream.WriteLine(s);
+					}
+				}
+			}
+		}
+
+		private string[] SplitWordToStringArray(string source)
+		{
+			return Regex
+				.Split(source, string.Empty)
+				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
 		}
 
 		private Encoding TryGetEncoding(string encoding)
@@ -78,6 +111,40 @@ namespace PasswordListGenerator
 				Console.WriteLine($"Error using {encoding} encoding. Fallback to utf-8");
 				return Encoding.UTF8;
 			}
+		}
+
+		private string ReadJson()
+		{
+			string result;
+			if (string.IsNullOrEmpty(_dictFilename))
+			{
+				return Resources.EnglishLeetDict;
+			}
+			using (var stream = new StreamReader(_dictFilename, _inEncoding))
+			{
+				result = stream.ReadToEnd();
+			}
+			return string.IsNullOrEmpty(result) ? Resources.EnglishLeetDict : result;
+		}
+
+		private bool ValidateJsonScheme(string jsonString)
+		{
+			var schemaGenerator = new JSchemaGenerator();
+			var schemaForLetter = schemaGenerator.Generate(typeof(Dictionary<string, JsonSubsMethod>));
+			try
+			{
+				var jsonObj = JObject.Parse(jsonString);
+				return jsonObj.IsValid(schemaForLetter);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private Dictionary<string, JsonSubsMethod> GetAvailableMethods(string jsonString)
+		{
+			return JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
 		}
 
 		private Dictionary<char, List<string>> GetAlphabetForMethod(SubsMethod method, Dictionary<string, JsonSubsMethod> availableMethods)
@@ -101,42 +168,6 @@ namespace PasswordListGenerator
 			}
 		}
 
-		private string ReadJson()
-		{
-			string result;
-			if (string.IsNullOrEmpty(_dictFilename))
-			{
-				return Resources.EnglishLeetDict;
-			}
-			using (var stream = new StreamReader(_dictFilename, _inEncoding))
-			{
-				result = stream.ReadToEnd();
-			}
-			return string.IsNullOrEmpty(result) ? Resources.EnglishLeetDict : result;
-		}
-
-		public IEnumerable<string> GetResult()
-		{
-			return _wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
-		}
-
-
-		private bool ValidateJsonScheme(string jsonString)
-		{
-			var schemaGenerator = new JSchemaGenerator();
-			var schemaForLetter = schemaGenerator.Generate(typeof(Dictionary<string, JsonSubsMethod>));
-			try
-			{
-				var jsonObj = JObject.Parse(jsonString);
-				return jsonObj.IsValid(schemaForLetter);
-			}
-			catch
-			{
-				return false;
-			}
-
-		}
-
 		private List<string[]> GetAllPossibleSubstitutesForEveryWord(List<string[]> wordsToSubs, Dictionary<char, List<string>> subsSymbols, int index)
 		{
 			var result = new List<string[]>();
@@ -152,7 +183,7 @@ namespace PasswordListGenerator
 		private List<string[]> GetAllPossibleSubstitutesForSymbol(Dictionary<char, List<string>> subsSymbols, string[] word, int index)
 		{
 			var result = new List<string[]>();
-			var key = char.ToUpper(word[index][0]);
+			var key = _isIgnoreCase ? char.ToUpper(word[index][0]) : word[index][0];
 			foreach (var symbol in subsSymbols[key])
 			{
 				var buf = (string[])word.Clone();
@@ -160,11 +191,6 @@ namespace PasswordListGenerator
 				result.Add(buf);
 			}
 			return result;
-		}
-
-		private Dictionary<string, JsonSubsMethod> GetAvailableMethods(string jsonString)
-		{
-			return JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
 		}
 	}
 }

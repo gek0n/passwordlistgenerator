@@ -21,13 +21,16 @@ namespace PasswordListGenerator
 	public class SubstituteSubOptions : EncodingSubOptions
 	{
 		[ValueOption(0)]
-		public string WordToSubs { get; set; }
+		public string SourceWord { get; set; }
 
 		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of symbols with dicts for every symbol)")]
 		public string DictFilename { get; set; }
 
 		[Option('m', "method", Required = false, DefaultValue = SubsMethod.GoodLeet, HelpText = "Method to substitute letters in word")]
 		public SubsMethod Method { get; set; }
+
+		[Option("ignore-case", Required = false, DefaultValue = true, HelpText = "Ignore letter case in source word")]
+		public bool IsIgnoreCase { get; set; }
 
 		[Option('o', "out-file", Required = false, HelpText = "File to write output substitutions")]
 		public string OutFilename { get; set; }
