@@ -11,6 +11,7 @@ namespace PasswordListGenerator
 
 		private static void Main(string[] args)
 		{
+			Console.OutputEncoding = Encoding.UTF8;
 			var options = new Options();
 			string invokedVerb = null;
 			object invokedVerbInstance = null;
@@ -26,7 +27,7 @@ namespace PasswordListGenerator
 
 			if (IsVerbNotSpecified(invokedVerb, invokedVerbInstance))
 			{
-				Console.WriteLine("Должны обработать команды по умолчанию");
+				Environment.Exit(Parser.DefaultExitCodeFail);
 			}
 
 			switch (invokedVerb)

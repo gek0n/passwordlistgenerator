@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CommandLine.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -24,8 +25,12 @@ namespace PasswordListGenerator
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
+		private readonly string _helpMessage;
+		private string _errorMessage = "Error: {0}" + Environment.NewLine + "See help usage" + Environment.NewLine + Environment.NewLine;
+
 		public Substitution(SubstituteSubOptions subsOptions)
-		{ 
+		{
+			_helpMessage = HelpText.AutoBuild(subsOptions);
 			_sourceWord = subsOptions.SourceWord;
 			_method = subsOptions.Method;
 			_isIgnoreCase = subsOptions.IsIgnoreCase;
@@ -34,17 +39,20 @@ namespace PasswordListGenerator
 			_inEncoding = TryGetEncoding(subsOptions.InEncoding);
 			_outEncoding = TryGetEncoding(subsOptions.OutEncoding);
 
+			/*
 			Console.WriteLine("========= Constructor ===========");
 			Console.WriteLine("wordToSub = " + _sourceWord);
 			Console.WriteLine("method = " + _method);
 			Console.WriteLine("dictPath = " + _dictFilename);
 			Console.WriteLine("=================================");
+			*/
 		}
 
 		public void Process()
 		{
 			if (string.IsNullOrEmpty(_sourceWord))
 			{
+				Console.WriteLine($"{GetErrorMessage("Empty word to substitution")}{_helpMessage}");
 				return;
 			}
 
@@ -64,8 +72,15 @@ namespace PasswordListGenerator
 			_wordsToSubs = new List<string[]> { inputSymbols };
 			for (var index = 0; index < inputSymbols.Length; index++)
 			{
-				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, alphabet, index);
-				_wordsToSubs.AddRange(newWordsToSubs);
+				try
+				{
+					var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, alphabet, index);
+					_wordsToSubs.AddRange(newWordsToSubs);
+				}
+				catch (ArgumentException exception)
+				{
+					Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
+				}
 			}
 			var result = _wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
 			GetResult(result);
@@ -117,6 +132,10 @@ namespace PasswordListGenerator
 		{
 			string result;
 			if (string.IsNullOrEmpty(_dictFilename))
+			{
+				return Resources.EnglishLeetDict;
+			}
+			if (!File.Exists(_dictFilename))
 			{
 				return Resources.EnglishLeetDict;
 			}
@@ -184,13 +203,23 @@ namespace PasswordListGenerator
 		{
 			var result = new List<string[]>();
 			var key = _isIgnoreCase ? char.ToUpper(word[index][0]) : word[index][0];
-			foreach (var symbol in subsSymbols[key])
+			List<string> colletion;
+			if (!subsSymbols.TryGetValue(key, out colletion))
+			{
+				throw new ArgumentException("The symbol is not in the dictionary. Please specify other dictionary or use ignore-case option");
+			}
+			foreach (var symbol in colletion)
 			{
 				var buf = (string[])word.Clone();
 				buf[index] = symbol;
 				result.Add(buf);
 			}
 			return result;
+		}
+
+		private string GetErrorMessage(string msg)
+		{
+			return string.Format(_errorMessage, msg);
 		}
 	}
 }

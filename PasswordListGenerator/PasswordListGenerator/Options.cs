@@ -23,13 +23,13 @@ namespace PasswordListGenerator
 		[ValueOption(0)]
 		public string SourceWord { get; set; }
 
-		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of symbols with dicts for every symbol)")]
+		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of methods with arrays for every symbol)")]
 		public string DictFilename { get; set; }
 
 		[Option('m', "method", Required = false, DefaultValue = SubsMethod.GoodLeet, HelpText = "Method to substitute letters in word")]
 		public SubsMethod Method { get; set; }
 
-		[Option("ignore-case", Required = false, DefaultValue = true, HelpText = "Ignore letter case in source word")]
+		[Option("ignore-case", Required = false, HelpText = "Ignore letter case in source word")]
 		public bool IsIgnoreCase { get; set; }
 
 		[Option('o', "out-file", Required = false, HelpText = "File to write output substitutions")]

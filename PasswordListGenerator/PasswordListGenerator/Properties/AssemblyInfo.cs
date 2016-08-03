@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using CommandLine;
 
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
@@ -10,9 +10,17 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PasswordListGenerator")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyInformationalVersion("1.0")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+// from CommandLineParser.Text
+[assembly: AssemblyLicense(
+	"\nThis is free software. You may redistribute copies of it under the terms of",
+	"the MIT License <link_here>")]
+[assembly: AssemblyUsage(
+	"\nUsage: PasswordListGenerator <some_verb> [keys] required_value")]
 
 // Параметр ComVisible со значением FALSE делает типы в сборке невидимыми 
 // для COM-компонентов.  Если требуется обратиться к типу в этой сборке через 
