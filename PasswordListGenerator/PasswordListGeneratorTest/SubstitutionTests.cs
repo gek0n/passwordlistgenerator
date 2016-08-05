@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using CommandLine;
 using NUnit.Framework;
@@ -456,7 +457,7 @@ namespace PasswordListGeneratorTest
 		}
 		#endregion
 
-		#region Dictionary
+		#region DictionaryTests
 		[Test]
 		[Category("Dictionary")]
 		public void EmptyDict_ShouldReturnDefaultSubstitutions()
@@ -612,7 +613,7 @@ namespace PasswordListGeneratorTest
 		}
 		#endregion
 
-		#region Output
+		#region OutputTests
 		[Test]
 		[Category("Output")]
 		public void OutputFileNotSpecified_ShouldPrintInConsole()
@@ -650,7 +651,49 @@ namespace PasswordListGeneratorTest
 			File.Delete("outputTest.txt");
 			Assert.That(text.Contains("B\r\n|3\r\n8\r\n"), Is.True);
 		}
-#endregion
+		#endregion
+
+		#region StdInputTests
+
+		[Test]
+		public void StdInputWithSourceWord_ShouldIgnoreSourceWord()
+		{
+			var args = new[]
+			{
+				"subs",
+				"B",
+				"-i"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Equals("Selected method is GoodLeet\r\n"), Is.True);
+			}
+		}
+
+		[Test]
+		public void StdInputThreeSymbolsInput_ShouldPrintSubstitution()
+		{
+			Assert.Fail("Cant implemented. Must be functional test");
+			var args = new[]
+			{
+				"subs",
+				"-i"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var consoleText = consoleOutput.GetOuput();
+				Assert.AreEqual(consoleText, "Selected method is GoodLeet\r\n");
+			}
+		}
+
+		#endregion
 
 		private static SubstituteSubOptions ParseSubOptions(string[] args)
 		{

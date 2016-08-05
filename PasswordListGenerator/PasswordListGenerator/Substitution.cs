@@ -74,9 +74,13 @@ namespace PasswordListGenerator
 			var processingWord = _sourceWord;
 			while (true)
 			{
-				if (string.IsNullOrEmpty(processingWord))
+				if (_isUseStdInput)
 				{
-					break;
+					processingWord = Console.ReadLine();
+					if (string.IsNullOrEmpty(processingWord))
+					{
+						break;
+					}
 				}
 				var tokens = SplitWordToStringArray(processingWord);
 
@@ -90,6 +94,11 @@ namespace PasswordListGenerator
 				catch (ArgumentException exception)
 				{
 					Logger.Error(exception.Message);
+					if (_isUseStdInput)
+					{
+						Console.WriteLine($"{GetErrorMessage(exception.Message)}");
+						continue;
+					}
 					Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
 					return;
 				}
@@ -108,7 +117,6 @@ namespace PasswordListGenerator
 				{
 					return;
 				}
-				processingWord = Console.ReadLine();
 			}
 		}
 
@@ -133,7 +141,7 @@ namespace PasswordListGenerator
 			}
 			else
 			{
-				using (var stream = new StreamWriter(_outFilename, false, _outEncoding))
+				using (var stream = new StreamWriter(_outFilename, _isUseStdInput, _outEncoding))
 				{
 					foreach (var s in result)
 					{
