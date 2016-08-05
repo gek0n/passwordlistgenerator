@@ -26,8 +26,8 @@ namespace PasswordListGenerator
 		[Option('d', "dict", Required = false, HelpText = "Dict to subs symbols (Must contain array of methods with arrays for every symbol)")]
 		public string DictFilename { get; set; }
 
-		[Option('m', "method", Required = false, DefaultValue = SubsMethod.GoodLeet, HelpText = "Method to substitute letters in word")]
-		public SubsMethod Method { get; set; }
+		[Option('m', "method", Required = false, HelpText = "Method from dictionary to substitute letters in word")]
+		public string Method { get; set; }
 
 		[Option("ignore-case", Required = false, HelpText = "Ignore letter case in source word")]
 		public bool IsIgnoreCase { get; set; }
@@ -55,13 +55,5 @@ namespace PasswordListGenerator
 
 		[Option("out-encoding", DefaultValue = "UTF-8", Required = false, HelpText = "Define output files encoding")]
 		public string OutEncoding { get; set; }
-	}
-
-	public enum SubsMethod
-	{
-		Cyrillic,
-		MadLeet,
-		GoodLeet,
-		Pronunciation
 	}
 }

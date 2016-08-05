@@ -16,6 +16,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("SourceWord")]
 		public void SourceWordEmptyNoParams_ShouldReturnErrorAndHelp()
 		{
 			var args = new[]
@@ -29,7 +30,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("Error: "), Is.True);
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
 
 				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
 				Assert.That(consoleText.Contains("--out-file"), Is.True);
@@ -38,6 +39,31 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("SourceWord")]
+		public void SourceWordOneSymbolNotInDict_ShouldReturnErrorAndHelp()
+		{
+			var args = new[]
+			{
+				"subs",
+				"{"
+			};
+			var subsOptions = ParseSubOptions(args);
+
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
+
+				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
+				Assert.That(consoleText.Contains("--out-file"), Is.True);
+				Assert.That(consoleText.Contains("--dict"), Is.True);
+			}
+		}
+
+		[Test]
+		[Category("SourceWord")]
 		public void SourceWordEmptyWithParams_ShouldReturnErrorAndHelp()
 		{
 			var args = new[]
@@ -62,7 +88,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("Error: "), Is.True);
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
 
 				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
 				Assert.That(consoleText.Contains("--out-file"), Is.True);
@@ -71,6 +97,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("SourceWord")]
 		public void SourceWordOneLetterNoParams_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -93,6 +120,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("SourceWord")]
 		public void SourceWordThreeLetterNoParams_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -137,6 +165,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("IgnoreCase")]
 		public void SourceWordThreeLetterIgnoreCase_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -182,7 +211,8 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
-		public void SourceWordThreeLetterNotInDict_ShouldReturnErrorAndHelp()
+		[Category("IgnoreCase")]
+		public void SourceWordThreeLetterLowercase_ShouldReturnErrorAndHelp()
 		{
 			var args = new[]
 			{
@@ -195,7 +225,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("Error: "), Is.True);
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
 
 				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
 				Assert.That(consoleText.Contains("--out-file"), Is.True);
@@ -204,6 +234,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("SourceWord")]
 		public void SourceWordThreeSymbolsNotFromDict_ShouldReturnErrorAndHelp()
 		{
 			var args = new[]
@@ -217,7 +248,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("Error: "), Is.True);
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
 
 				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
 				Assert.That(consoleText.Contains("--out-file"), Is.True);
@@ -226,6 +257,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordOneLetterPronunMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -247,6 +279,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordThreeLetterPronunMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -274,6 +307,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordOneLetterMadLeetMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -300,6 +334,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordThreeLetterMadLeetMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -320,6 +355,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordOneLetterCyrillicMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -341,6 +377,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Methods")]
 		public void SourceWordThreeLetterCyrillicMethod_ShouldReturnSubstitutions()
 		{
 			var args = new[]
@@ -368,20 +405,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
-		public void WrongMethod_ShouldReturnErrorAndHelp()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"TestMethod"
-			};
-			Assert.Throws<AssertionException>(() => ParseSubOptions(args));
-			Assert.Fail("Not implemented");
-		}
-
-		[Test]
+		[Category("Dictionary")]
 		public void EmptyDict_ShouldReturnDefaultSubstitutions()
 		{
 			var file = File.Create("testDict1.txt");
@@ -409,6 +433,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Dictionary")]
 		public void NonexistentDict_ShouldReturnDefaultSubstitutions()
 		{
 			var args = new[]
@@ -433,9 +458,10 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Dictionary")]
 		public void DictWithGoodLeetOnly_ShouldReturnSubstitutions()
 		{
-			var content = "{\r\n\t\"good-leet\": {\r\n\t\t\"C\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
+			var content = "{\r\n\t\"GoodLeet\": {\r\n\t\t\"C\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
 			File.WriteAllText("testDict1.txt", content, Encoding.UTF8);
 			
 			var args = new[]
@@ -457,9 +483,10 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Dictionary")]
 		public void DictWithAllMethods_ShouldReturnSubstitutions()
 		{
-			var content = "{\"good-leet\": {\"C\": [\"[\", \"(\" ]}, \"mad-leet\": {\"C\": [\"c\"]}, \"cyrillic\": {\"C\": [ \"С\" ]}}";
+			var content = "{\"GoodLeet\": {\"C\": [\"[\", \"(\" ]}, \"MadLeet\": {\"C\": [\"c\"]}, \"Cyrillic\": {\"C\": [ \"С\" ]}}";
 			File.WriteAllText("testDict1.txt", content, Encoding.UTF8);
 			var args = new[]
 			{
@@ -480,9 +507,10 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Dictionary")]
 		public void DictWithGoodLeetOnlySymbols_ShouldReturnSubstitutions()
 		{
-			var content = "{\r\n\t\"good-leet\": {\r\n\t\t\"{\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
+			var content = "{\r\n\t\"GoodLeet\": {\r\n\t\t\"{\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
 			File.WriteAllText("testDict1.txt", content, Encoding.UTF8);
 			var args = new[]
 			{
@@ -503,9 +531,113 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
-		public void DictWithWrongJsonSyntax_ShouldReturnDefaultSubstitutions()
+		[Category("Dictionary")]
+		public void DictWithWrongJsonSyntax_ShouldReturnErrorAndHelp()
 		{
-			Assert.Fail("Not implemented");
+			var content = "{\r\n\t\"good-leet\": \r\n\t\t\"{\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
+			File.WriteAllText("testDict1.txt", content, Encoding.UTF8);
+			var args = new[]
+			{
+				"subs",
+				"{",
+				"-d",
+				"testDict1.txt"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				File.Delete("testDict1.txt");
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
+
+				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
+				Assert.That(consoleText.Contains("--out-file"), Is.True);
+				Assert.That(consoleText.Contains("--dict"), Is.True);
+			}
+		}
+
+		[Test]
+		[Category("Methods")]
+		public void MethodInWrongCase_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C",
+				"-m",
+				"prOnunCiatiON"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C\r\n" +
+						   "cee\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				Assert.AreEqual(expected, consoleOutput.GetOuput());
+			}
+		}
+
+		[Test]
+		[Category("Methods")]
+		public void WrongMethod_ShouldReturnSubstitutionsFromFirstAvailableMethod()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C",
+				"-m",
+				"balabala"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C\r\n" +
+						   "С\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				Assert.AreEqual(expected, consoleOutput.GetOuput());
+			}
+		}
+
+		[Test]
+		[Category("Output")]
+		public void OutputFileNotSpecified_ShouldPrintInConsole()
+		{
+			var args = new[]
+			{
+				"subs",
+				"B"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Contains("B\r\n|3\r\n8\r\n"), Is.True);
+			}
+		}
+
+		[Test]
+		[Category("Output")]
+		public void OutputFileSpecified_ShouldPrintInFile()
+		{
+			var args = new[]
+			{
+				"subs",
+				"B",
+				"-o",
+				"outputTest.txt"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			subsInstance.Process();
+			var text = File.ReadAllText("outputTest.txt");
+			File.Delete("outputTest.txt");
+			Assert.That(text.Contains("B\r\n|3\r\n8\r\n"), Is.True);
 		}
 
 		private static SubstituteSubOptions ParseSubOptions(string[] args)

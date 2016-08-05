@@ -15,6 +15,7 @@ using CommandLine;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 // from CommandLineParser.Text
 [assembly: AssemblyLicense(
 	"\nThis is free software. You may redistribute copies of it under the terms of",

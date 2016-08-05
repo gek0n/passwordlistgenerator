@@ -15,10 +15,12 @@ namespace PasswordListGenerator
 {
 	public class Substitution
 	{
+		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 		private List<string[]> _wordsToSubs;
 
 		private readonly string _sourceWord;
-		private readonly SubsMethod _method;
+		private readonly string _method;
 		private readonly bool _isIgnoreCase;
 		private readonly string _dictFilename;
 		private readonly string _outFilename;
@@ -26,32 +28,33 @@ namespace PasswordListGenerator
 		private readonly Encoding _outEncoding;
 
 		private readonly string _helpMessage;
-		private string _errorMessage = "Error: {0}" + Environment.NewLine + "See help usage" + Environment.NewLine + Environment.NewLine;
+		private readonly string _errorMessage = "[ERROR]: {0}" + Environment.NewLine + "See help usage" + Environment.NewLine + Environment.NewLine;
 
 		public Substitution(SubstituteSubOptions subsOptions)
 		{
 			_helpMessage = HelpText.AutoBuild(subsOptions);
 			_sourceWord = subsOptions.SourceWord;
-			_method = subsOptions.Method;
+			_method = subsOptions.Method?.ToLowerInvariant();
 			_isIgnoreCase = subsOptions.IsIgnoreCase;
 			_dictFilename = subsOptions.DictFilename;
 			_outFilename = subsOptions.OutFilename;
 			_inEncoding = TryGetEncoding(subsOptions.InEncoding);
 			_outEncoding = TryGetEncoding(subsOptions.OutEncoding);
 
-			/*
-			Console.WriteLine("========= Constructor ===========");
-			Console.WriteLine("wordToSub = " + _sourceWord);
-			Console.WriteLine("method = " + _method);
-			Console.WriteLine("dictPath = " + _dictFilename);
-			Console.WriteLine("=================================");
-			*/
+			Logger.Debug($"wordToSub = {_sourceWord}" +
+						$"method = {_method}" +
+						$"IsIgnoreCase = {_isIgnoreCase}" +
+						$"dictFilename = {_dictFilename}" +
+						$"outFilename = {_outFilename}" +
+						$"inEncoding = {_inEncoding}" +
+						$"outEncoding = {_outEncoding}");
 		}
 
 		public void Process()
 		{
 			if (string.IsNullOrEmpty(_sourceWord))
 			{
+				Logger.Error("Empty word to substitution");
 				Console.WriteLine($"{GetErrorMessage("Empty word to substitution")}{_helpMessage}");
 				return;
 			}
@@ -60,30 +63,50 @@ namespace PasswordListGenerator
 
 			if (!ValidateJsonScheme(jsonString))
 			{
-				Console.WriteLine("Json syntax is invalid. Please check your file");
+				Logger.Error("Json syntax is invalid. Please check your file");
+				Console.WriteLine($"{GetErrorMessage("Json syntax is invalid. Please check your file")}{_helpMessage}");
 				return;
 			}
 			var availableMethods = GetAvailableMethods(jsonString);
 
-			var inputSymbols = SplitWordToStringArray(_sourceWord);
+			var tokens = SplitWordToStringArray(_sourceWord);
 
 			var alphabet = GetAlphabetForMethod(_method, availableMethods);
 
-			_wordsToSubs = new List<string[]> { inputSymbols };
-			for (var index = 0; index < inputSymbols.Length; index++)
+			_wordsToSubs = new List<string[]> { tokens };
+
+			IEnumerable<string> result;
+			try
 			{
-				try
-				{
-					var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(_wordsToSubs, alphabet, index);
-					_wordsToSubs.AddRange(newWordsToSubs);
-				}
-				catch (ArgumentException exception)
-				{
-					Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
-				}
+				result = GetSubstitute(_wordsToSubs, alphabet, tokens.Length);
 			}
-			var result = _wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
-			GetResult(result);
+			catch (ArgumentException exception)
+			{
+				Logger.Error(exception.Message);
+				Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
+				return;
+			}
+
+			try
+			{
+				GetResult(result);
+			}
+			catch (Exception exception)
+			{
+				Logger.Error(exception.Message);
+				Console.WriteLine("Output file error. See log file for more information");
+				return;
+			}
+		}
+
+		private IEnumerable<string> GetSubstitute(List<string[]> wordsToSubs, Dictionary<char, List<string>> alphabet, int colTokens)
+		{
+			for (var index = 0; index < colTokens; index++)
+			{
+				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(wordsToSubs, alphabet, index);
+				_wordsToSubs.AddRange(newWordsToSubs);
+			}
+			return wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
 		}
 
 		private void GetResult(IEnumerable<string> result)
@@ -123,7 +146,8 @@ namespace PasswordListGenerator
 			}
 			catch (ArgumentException)
 			{
-				Console.WriteLine($"Error using {encoding} encoding. Fallback to utf-8");
+				Logger.Warn($"Can't using {encoding} encoding. Fallback to utf-8");
+				Console.WriteLine($"Warning! Can't using {encoding} encoding. Fallback to utf-8");
 				return Encoding.UTF8;
 			}
 		}
@@ -163,28 +187,22 @@ namespace PasswordListGenerator
 
 		private Dictionary<string, JsonSubsMethod> GetAvailableMethods(string jsonString)
 		{
-			return JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
+			var originalDictionary = JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
+			return new Dictionary<string, JsonSubsMethod>(originalDictionary, StringComparer.OrdinalIgnoreCase);
 		}
 
-		private Dictionary<char, List<string>> GetAlphabetForMethod(SubsMethod method, Dictionary<string, JsonSubsMethod> availableMethods)
+		private Dictionary<char, List<string>> GetAlphabetForMethod(string method, Dictionary<string, JsonSubsMethod> availableMethods)
 		{
-			switch (method)
+			JsonSubsMethod subsMethod;
+			if (method != null && availableMethods.TryGetValue(method, out subsMethod))
 			{
-				case SubsMethod.Cyrillic:
-					return availableMethods["cyrillic"];
-
-				case SubsMethod.GoodLeet:
-					return availableMethods["good-leet"];
-
-				case SubsMethod.MadLeet:
-					return availableMethods["mad-leet"];
-
-				case SubsMethod.Pronunciation:
-					return availableMethods["pronunciation"];
-
-				default:
-					return null;
+				Logger.Info($"Selected method is {method}");
+				Console.WriteLine($"Selected method is {method}");
+				return availableMethods[method];
 			}
+			Logger.Info($"Selected method is {availableMethods.First().Key}");
+			Console.WriteLine($"Selected method is {availableMethods.First().Key}");
+			return availableMethods.First().Value;
 		}
 
 		private List<string[]> GetAllPossibleSubstitutesForEveryWord(List<string[]> wordsToSubs, Dictionary<char, List<string>> subsSymbols, int index)
@@ -206,7 +224,7 @@ namespace PasswordListGenerator
 			List<string> colletion;
 			if (!subsSymbols.TryGetValue(key, out colletion))
 			{
-				throw new ArgumentException("The symbol is not in the dictionary. Please specify other dictionary or use ignore-case option");
+				throw new ArgumentException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
 			}
 			foreach (var symbol in colletion)
 			{

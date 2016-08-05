@@ -6,6 +6,8 @@ namespace PasswordListGenerator
 {
 	internal class Program
 	{
+		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 		private static Encoding _inFileEncoding;
 		private static Encoding _outFileEncoding;
 
@@ -22,45 +24,34 @@ namespace PasswordListGenerator
 				invokedVerbInstance = subOptions;
 			}))
 			{
+				Logger.Error("Application can't parse arguments");
 				Environment.Exit(Parser.DefaultExitCodeFail);
 			}
 
 			if (IsVerbNotSpecified(invokedVerb, invokedVerbInstance))
 			{
+				Logger.Error("The verb is not specified");
 				Environment.Exit(Parser.DefaultExitCodeFail);
 			}
 
 			switch (invokedVerb)
 			{
 				case "comb":
-					Console.WriteLine("Comb verb");
+					Logger.Debug("Comb verb");
 					break;
 
 				case "subs":
-					Console.WriteLine("Subs verb");
+					Logger.Debug("Subs verb");
 					var subsOptions = (SubstituteSubOptions)invokedVerbInstance;
 
-					TrySetEncodings(subsOptions.InEncoding, subsOptions.OutEncoding);
 					var subs = new Substitution(subsOptions);
 					subs.Process();
 					break;
 
 				default:
-					Console.WriteLine("Unknown verb");
+					Logger.Debug("Unknown verb");
 					break;
 			}
-
-			/*
-			using (var stream = new StreamReader(options.KeywordsFilename, _inFileEncoding))
-			{
-				while (!stream.EndOfStream)
-				{
-					var keyword = stream.ReadLine();
-					Console.OutputEncoding = _inFileEncoding;
-					Console.WriteLine(keyword);
-				}
-			}
-			*/
 		}
 
 		private static bool IsVerbNotSpecified(string invokedVerb, object invokedVerbInstance)
