@@ -17,13 +17,12 @@ namespace PasswordListGenerator
 	{
 		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private List<string[]> _wordsToSubs;
-
 		private readonly string _sourceWord;
 		private readonly string _method;
 		private readonly bool _isIgnoreCase;
 		private readonly string _dictFilename;
 		private readonly string _outFilename;
+		private readonly bool _isUseStdInput;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
@@ -38,6 +37,7 @@ namespace PasswordListGenerator
 			_isIgnoreCase = subsOptions.IsIgnoreCase;
 			_dictFilename = subsOptions.DictFilename;
 			_outFilename = subsOptions.OutFilename;
+			_isUseStdInput = subsOptions.IsUseStdInput;
 			_inEncoding = TryGetEncoding(subsOptions.InEncoding);
 			_outEncoding = TryGetEncoding(subsOptions.OutEncoding);
 
@@ -52,7 +52,7 @@ namespace PasswordListGenerator
 
 		public void Process()
 		{
-			if (string.IsNullOrEmpty(_sourceWord))
+			if (string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput)
 			{
 				Logger.Error("Empty word to substitution");
 				Console.WriteLine($"{GetErrorMessage("Empty word to substitution")}{_helpMessage}");
@@ -69,33 +69,46 @@ namespace PasswordListGenerator
 			}
 			var availableMethods = GetAvailableMethods(jsonString);
 
-			var tokens = SplitWordToStringArray(_sourceWord);
-
 			var alphabet = GetAlphabetForMethod(_method, availableMethods);
 
-			_wordsToSubs = new List<string[]> { tokens };
+			var processingWord = _sourceWord;
+			while (true)
+			{
+				if (string.IsNullOrEmpty(processingWord))
+				{
+					break;
+				}
+				var tokens = SplitWordToStringArray(processingWord);
 
-			IEnumerable<string> result;
-			try
-			{
-				result = GetSubstitute(_wordsToSubs, alphabet, tokens.Length);
-			}
-			catch (ArgumentException exception)
-			{
-				Logger.Error(exception.Message);
-				Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
-				return;
-			}
+				var wordsToSubs = new List<string[]> { tokens };
 
-			try
-			{
-				GetResult(result);
-			}
-			catch (Exception exception)
-			{
-				Logger.Error(exception.Message);
-				Console.WriteLine("Output file error. See log file for more information");
-				return;
+				IEnumerable<string> result;
+				try
+				{
+					result = GetSubstitute(wordsToSubs, alphabet, tokens.Length);
+				}
+				catch (ArgumentException exception)
+				{
+					Logger.Error(exception.Message);
+					Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
+					return;
+				}
+
+				try
+				{
+					GetResult(result);
+				}
+				catch (Exception exception)
+				{
+					Logger.Error(exception.Message);
+					Console.WriteLine("Output file error. See log file for more information");
+					return;
+				}
+				if (!_isUseStdInput)
+				{
+					return;
+				}
+				processingWord = Console.ReadLine();
 			}
 		}
 
@@ -104,7 +117,7 @@ namespace PasswordListGenerator
 			for (var index = 0; index < colTokens; index++)
 			{
 				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(wordsToSubs, alphabet, index);
-				_wordsToSubs.AddRange(newWordsToSubs);
+				wordsToSubs.AddRange(newWordsToSubs);
 			}
 			return wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
 		}

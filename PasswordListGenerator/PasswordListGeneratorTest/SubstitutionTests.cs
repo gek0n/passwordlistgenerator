@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using CommandLine;
 using NUnit.Framework;
@@ -14,7 +13,7 @@ namespace PasswordListGeneratorTest
 		public void Init()
 		{
 		}
-
+		#region SourceWordTests
 		[Test]
 		[Category("SourceWord")]
 		public void SourceWordEmptyNoParams_ShouldReturnErrorAndHelp()
@@ -115,7 +114,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -160,10 +159,36 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
+		[Test]
+		[Category("SourceWord")]
+		public void SourceWordThreeSymbolsNotFromDict_ShouldReturnErrorAndHelp()
+		{
+			var args = new[]
+			{
+				"subs",
+				"^&*"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
+
+				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
+				Assert.That(consoleText.Contains("--out-file"), Is.True);
+				Assert.That(consoleText.Contains("--dict"), Is.True);
+			}
+		}
+
+		#endregion
+
+		#region IgnoreCaseTests
 		[Test]
 		[Category("IgnoreCase")]
 		public void SourceWordThreeLetterIgnoreCase_ShouldReturnSubstitutions()
@@ -206,7 +231,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -232,30 +257,9 @@ namespace PasswordListGeneratorTest
 				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
+		#endregion
 
-		[Test]
-		[Category("SourceWord")]
-		public void SourceWordThreeSymbolsNotFromDict_ShouldReturnErrorAndHelp()
-		{
-			var args = new[]
-			{
-				"subs",
-				"^&*"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
-			}
-		}
-
+		#region MethodsTests
 		[Test]
 		[Category("Methods")]
 		public void SourceWordOneLetterPronunMethod_ShouldReturnSubstitutions()
@@ -274,7 +278,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -302,7 +306,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -329,7 +333,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -350,7 +354,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(1041, consoleOutput.GetOuput().Split('\n').Length);
+				Assert.AreEqual(1041 + 1, consoleOutput.GetOuput().Split('\n').Length);
 			}
 		}
 
@@ -372,7 +376,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -400,10 +404,59 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
+		[Test]
+		[Category("Methods")]
+		public void MethodInWrongCase_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C",
+				"-m",
+				"prOnunCiatiON"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C\r\n" +
+							"cee\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
+			}
+		}
+
+		[Test]
+		[Category("Methods")]
+		public void WrongMethod_ShouldReturnSubstitutionsFromFirstAvailableMethod()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C",
+				"-m",
+				"balabala"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C\r\n" +
+							"[\r\n" +
+							"{\r\n" +
+							"(\r\n" +
+							"<\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
+			}
+		}
+		#endregion
+
+		#region Dictionary
 		[Test]
 		[Category("Dictionary")]
 		public void EmptyDict_ShouldReturnDefaultSubstitutions()
@@ -428,7 +481,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				File.Delete("testDict1.txt");
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -453,7 +506,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -478,7 +531,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				File.Delete("testDict1.txt");
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -502,7 +555,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				File.Delete("testDict1.txt");
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -526,7 +579,7 @@ namespace PasswordListGeneratorTest
 			{
 				subsInstance.Process();
 				File.Delete("testDict1.txt");
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
 
@@ -557,51 +610,9 @@ namespace PasswordListGeneratorTest
 				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
+		#endregion
 
-		[Test]
-		[Category("Methods")]
-		public void MethodInWrongCase_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"prOnunCiatiON"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-						   "cee\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void WrongMethod_ShouldReturnSubstitutionsFromFirstAvailableMethod()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"balabala"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-						   "С\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.AreEqual(expected, consoleOutput.GetOuput());
-			}
-		}
-
+		#region Output
 		[Test]
 		[Category("Output")]
 		public void OutputFileNotSpecified_ShouldPrintInConsole()
@@ -639,6 +650,7 @@ namespace PasswordListGeneratorTest
 			File.Delete("outputTest.txt");
 			Assert.That(text.Contains("B\r\n|3\r\n8\r\n"), Is.True);
 		}
+#endregion
 
 		private static SubstituteSubOptions ParseSubOptions(string[] args)
 		{
@@ -651,30 +663,6 @@ namespace PasswordListGeneratorTest
 			}
 
 			return (SubstituteSubOptions) invokedVerbInstance;
-		}
-	}
-
-	public class ConsoleOutput : IDisposable
-	{
-		private readonly StringWriter _stringWriter;
-		private readonly TextWriter _originalOutput;
-
-		public ConsoleOutput()
-		{
-			_stringWriter = new StringWriter();
-			_originalOutput = Console.Out;
-			Console.SetOut(_stringWriter);
-		}
-
-		public string GetOuput()
-		{
-			return _stringWriter.ToString();
-		}
-
-		public void Dispose()
-		{
-			Console.SetOut(_originalOutput);
-			_stringWriter.Dispose();
 		}
 	}
 }

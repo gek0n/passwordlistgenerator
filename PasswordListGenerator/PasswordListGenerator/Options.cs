@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CommandLine.Text;
+using Newtonsoft.Json;
 
 namespace PasswordListGenerator
 {
@@ -34,6 +35,9 @@ namespace PasswordListGenerator
 
 		[Option('o', "out-file", Required = false, HelpText = "File to write output substitutions")]
 		public string OutFilename { get; set; }
+
+		[Option('i', Required = false, HelpText = "Use std input to get words for substitution")]
+		public bool IsUseStdInput { get; set; }
 	}
 
 	public class CombineSubOptions : EncodingSubOptions
