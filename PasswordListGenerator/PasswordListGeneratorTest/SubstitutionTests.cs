@@ -677,7 +677,6 @@ namespace PasswordListGeneratorTest
 		[Test]
 		public void StdInputThreeSymbolsInput_ShouldPrintSubstitution()
 		{
-			Assert.Fail("Cant implemented. Must be functional test");
 			var args = new[]
 			{
 				"subs",
@@ -685,11 +684,39 @@ namespace PasswordListGeneratorTest
 			};
 			var subsOptions = ParseSubOptions(args);
 			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
+			using (new ConsoleInput("B\r\nC\r\n"))
 			{
-				subsInstance.Process();
-				var consoleText = consoleOutput.GetOuput();
-				Assert.AreEqual(consoleText, "Selected method is GoodLeet\r\n");
+				using (var consoleOutput = new ConsoleOutput())
+				{
+					subsInstance.Process();
+					var consoleText = consoleOutput.GetOuput();
+					Assert.That(consoleText.Equals("Selected method is GoodLeet\r\nB\r\n|3\r\n8\r\nC\r\n[\r\n{\r\n(\r\n<\r\n"));
+				}
+			}
+		}
+
+		[Test]
+		public void StdInputOneWrongSymbolInput_ShouldPrintErrorAndContinueWork()
+		{
+			var args = new[]
+			{
+				"subs",
+				"-i"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleInput = new ConsoleInput("q\r\n"))
+			{
+				using (var consoleOutput = new ConsoleOutput())
+				{
+					subsInstance.Process();
+					var consoleText = consoleOutput.GetOuput();
+					Assert.That(consoleText.Contains("[ERROR]"));
+					consoleInput.SetInput("B\r\n");
+					subsInstance.Process();
+					consoleText = consoleOutput.GetOuput();
+					Assert.That(consoleText.Contains("B\r\n|3\r\n8\r\n"));
+				}
 			}
 		}
 
