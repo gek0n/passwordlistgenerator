@@ -27,11 +27,11 @@ namespace PasswordListGenerator
 		private readonly Encoding _outEncoding;
 
 		private readonly string _helpMessage;
-		private readonly string _errorMessage = "[ERROR]: {0}" + Environment.NewLine + "See help usage" + Environment.NewLine + Environment.NewLine;
+		private readonly string _errorMessage = "[ERROR]: {0}" + Environment.NewLine + Environment.NewLine;
 
 		public Substitution(SubstituteSubOptions subsOptions)
 		{
-			_helpMessage = HelpText.AutoBuild(subsOptions);
+			_helpMessage = subsOptions.GetUsage();
 			_sourceWord = subsOptions.SourceWord;
 			_method = subsOptions.Method?.ToLowerInvariant();
 			_isIgnoreCase = subsOptions.IsIgnoreCase;
@@ -76,6 +76,7 @@ namespace PasswordListGenerator
 			{
 				if (_isUseStdInput)
 				{
+					//Console.Write(">>: ");
 					processingWord = Console.ReadLine();
 					if (string.IsNullOrEmpty(processingWord))
 					{
