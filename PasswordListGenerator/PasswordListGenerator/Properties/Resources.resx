@@ -118,7 +118,22 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="AdditionalSubsDictUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubsDictUsage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalSubsMethodUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubsMethodUsage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalSubs_i_Usages" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubs_i_Usages.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="additionalUsage" xml:space="preserve">
+    <value>Additional information for options:</value>
+  </data>
   <data name="EnglishLeetDict" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EnglishLeetDict.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="encodingFallback" xml:space="preserve">
+    <value>Error using {0} encoding. Fallback to utf-8</value>
   </data>
 </root>

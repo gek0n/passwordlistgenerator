@@ -61,52 +61,157 @@ namespace PasswordListGenerator.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на -i
+        ///		Use this option if you want to substitute many words typed form keyboard or loaded from input stream.
+        ///		For example, if you type :PasswordListGenerator subs -i
+        ///		You will see folowing:
+        ///		Selected method is GoodLeet
+        ///		
+        ///		Now you can type any word or symbol and substitutions will appear in the console:
+        ///		&lt;Q&gt; (typed)
+        ///		Q
+        ///		(,)
+        ///		&lt;B&gt; (typed)
+        ///		B
+        ///		|3
+        ///		8
+        ///		&lt;q&gt; (typed)
+        ///		[ERROR]: The symbol &quot;q&quot; is not in the dictionary. Please specify other dictionary or use
+        ///		ignore-case option
+        ///
+        ///		&lt;Enter&gt; [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string AdditionalSubs_i_Usages {
+            get {
+                return ResourceManager.GetString("AdditionalSubs_i_Usages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на -d, --dict
+        ///		Use this option to specify file, that contains json data in folowing format:
+        ///		{
+        ///			&quot;method_1&quot;: {
+        ///				&quot;A&quot;: [
+        ///					&quot;a&quot;,
+        ///					&quot;/-\&quot;,
+        ///				],
+        ///				&quot;1&quot;: [
+        ///					&quot;|&quot;,
+        ///					&quot;i&quot;,
+        ///					&quot;I&quot;
+        ///				]
+        ///				...
+        ///			},
+        ///			&quot;method_2&quot;: {
+        ///				&quot;A&quot;: [...],
+        ///				...
+        ///			},
+        ///			...
+        ///		}
+        ///
+        ///		Now if you type: PasswordListGenerator subs -d dictFilename.json -m method_1 A
+        ///		You will see folowing text in console:
+        ///		A
+        ///		a
+        ///		/-\
+        ///		It&apos;s all possible substitutions for symbol &quot;A&quot; in method &quot;method_1&quot;, specifie [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string AdditionalSubsDictUsage {
+            get {
+                return ResourceManager.GetString("AdditionalSubsDictUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на -m, --method
+        ///		Use this option to specify method, that containing dictionaty of symbols with all possible substitutions
+        ///		for each. If you specify file with user dictionary, then you must use methods, written in this file
+        ///		(see -d option). If method does not specified, default method will be used. First method in dictionary
+        ///		will be used as default. In default file &quot;GoodLeet&quot; method is used by default.
+        ///.
+        /// </summary>
+        internal static string AdditionalSubsMethodUsage {
+            get {
+                return ResourceManager.GetString("AdditionalSubsMethodUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Additional information for options:.
+        /// </summary>
+        internal static string additionalUsage {
+            get {
+                return ResourceManager.GetString("additionalUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Error using {0} encoding. Fallback to utf-8.
+        /// </summary>
+        internal static string encodingFallback {
+            get {
+                return ResourceManager.GetString("encodingFallback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на {
-        ///	&quot;A&quot;: {
-        ///		&quot;cyrillic&quot;: &quot;А&quot;,
-        ///		&quot;mad-leet&quot;: [
-        ///			&quot;4&quot;,
-        ///			&quot;/\\&quot;,
-        ///			&quot;@&quot;,
-        ///			&quot;/-\\&quot;,
-        ///			&quot;^&quot;,
-        ///			&quot;aye&quot;,
-        ///			&quot;(L&quot;,
-        ///			&quot;Д&quot;
-        ///		],
-        ///		&quot;good-leet&quot;: [
+        ///	&quot;GoodLeet&quot;: {
+        ///		&quot;A&quot;: [
         ///			&quot;4&quot;,
         ///			&quot;/\\&quot;,
         ///			&quot;@&quot;,
         ///			&quot;/-\\&quot;
         ///		],
-        ///		&quot;pronunciation&quot;: &quot;a&quot;
-        ///	},
-        ///	&quot;B&quot;: {
-        ///		&quot;cyrillic&quot;: &quot;В&quot;,
-        ///		&quot;mad-leet&quot;: [
-        ///			&quot;I3&quot;,
-        ///			&quot;8&quot;,
-        ///			&quot;13&quot;,
-        ///			&quot;|3&quot;,
-        ///			&quot;ß&quot;,
-        ///			&quot;!3&quot;,
-        ///			&quot;(3&quot;,
-        ///			&quot;/3&quot;,
-        ///			&quot;)3&quot;,
-        ///			&quot;|-]&quot;,
-        ///			&quot;j3&quot;,
-        ///			&quot;6&quot;
-        ///		],
-        ///		&quot;good-leet&quot;: [
+        ///		&quot;B&quot;: [
         ///			&quot;|3&quot;,
         ///			&quot;8&quot;
         ///		],
-        ///		&quot;pronunciation&quot;: &quot;bee&quot;
-        ///	},
-        ///	&quot;C&quot;: {
-        ///		&quot;cyrillic&quot;: &quot;С&quot;,
-        ///		&quot;mad-leet&quot;:  [остаток строки не уместился]&quot;;.
+        ///		&quot;C&quot;: [
+        ///			&quot;[&quot;,
+        ///			&quot;{&quot;,
+        ///			&quot;(&quot;,
+        ///			&quot;&lt;&quot;
+        ///		],
+        ///		&quot;D&quot;: [
+        ///			&quot;|)&quot;,
+        ///			&quot;|}&quot;,
+        ///			&quot;|]&quot;,
+        ///			&quot;|&gt;&quot;
+        ///		],
+        ///		&quot;E&quot;: [
+        ///			&quot;3&quot;
+        ///		],
+        ///		&quot;F&quot;: [
+        ///			&quot;|=&quot;,
+        ///			&quot;/=&quot;
+        ///		],
+        ///		&quot;G&quot;: [
+        ///			&quot;9&quot;,
+        ///			&quot;6&quot;
+        ///		],
+        ///		&quot;H&quot;: [
+        ///			&quot;/-/&quot;,
+        ///			&quot;]-[&quot;,
+        ///			&quot;|-|&quot;,
+        ///			&quot;\\-\\&quot;,
+        ///			&quot;}-{&quot;,
+        ///			&quot;)-(&quot;,
+        ///			&quot;!-!&quot;,
+        ///			&quot;/~/&quot;,
+        ///			&quot;]~[&quot;,
+        ///			&quot;|~|&quot;,
+        ///			&quot;\\~\\&quot;,
+        ///			&quot;}~{&quot;,
+        ///			&quot;)~(&quot;
+        ///		],
+        ///		&quot;I&quot;: [
+        ///			&quot;|&quot;,
+        ///			&quot;1&quot;,
+        ///			&quot;!&quot;
+        ///		],
+        ///	 [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string EnglishLeetDict {
             get {
