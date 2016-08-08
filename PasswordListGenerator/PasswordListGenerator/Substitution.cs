@@ -1,10 +1,11 @@
-﻿using System;
+﻿// Copyright 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using CommandLine.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -76,7 +77,6 @@ namespace PasswordListGenerator
 			{
 				if (_isUseStdInput)
 				{
-					//Console.Write(">>: ");
 					processingWord = Console.ReadLine();
 					if (string.IsNullOrEmpty(processingWord))
 					{

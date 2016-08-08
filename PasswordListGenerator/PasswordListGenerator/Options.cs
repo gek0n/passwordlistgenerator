@@ -1,7 +1,8 @@
-﻿using System.Text;
+﻿// Copyright 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+
+using System.Text;
 using CommandLine;
 using CommandLine.Text;
-using Newtonsoft.Json;
 
 namespace PasswordListGenerator
 {
