@@ -28,13 +28,17 @@ namespace PasswordListGenerator
 			}
 		}
 
-		private static bool IsVerbNotSpecified(IVerbOption verb)
-			=> verb == null;
-
 		private static IVerbOption CreateVerb(string[] args)
 		{
 			IVerbOption option = null;
-			if (!Parser.Default.ParseArguments(args, new Options(), (verbStr, subOptions) => option = VerbOptionFactory.Construct(verbStr, subOptions)))
+			if (!Parser
+				.Default
+				.ParseArguments(
+					args, 
+					new Options(), 
+					(verbName, verbInstance) => option = VerbOptionFactory.Construct(verbName, verbInstance)
+				)
+			)
 			{
 				throw new ArgumentException("Application can't parse arguments");
 			}

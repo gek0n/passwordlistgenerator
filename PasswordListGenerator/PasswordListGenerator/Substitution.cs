@@ -18,7 +18,6 @@ namespace PasswordListGenerator
 	{
 		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private readonly string _sourceWord;
 		private readonly string _method;
 		private readonly bool _isIgnoreCase;
 		private readonly string _dictFilename;
@@ -29,6 +28,9 @@ namespace PasswordListGenerator
 
 		private readonly string _helpMessage;
 		private readonly string _errorMessage = "[ERROR]: {0}" + Environment.NewLine + Environment.NewLine;
+
+		private string _sourceWord;
+		private Dictionary<char, List<string>> _alphabet;
 
 		public Substitution(SubstituteSubOptions subsOptions)
 		{
@@ -49,48 +51,55 @@ namespace PasswordListGenerator
 						$"outFilename = {_outFilename}" +
 						$"inEncoding = {_inEncoding}" +
 						$"outEncoding = {_outEncoding}");
+
+			if (!Initialize())
+			{
+				Console.WriteLine("Can't initialize subs option");
+			}
+		}
+
+		private bool Initialize()
+		{
+			var jsonString = ReadJson();
+			if (IsJsonSchemeNotValid(jsonString))
+			{
+				Logger.Error("Json syntax is invalid. Please check your file");
+				Console.WriteLine($"{GetErrorMessage("Json syntax is invalid. Please check your file")}{_helpMessage}");
+				return false;
+			}
+
+			var availableMethods = GetAvailableMethods(jsonString);
+			_alphabet = GetAlphabetForMethod(_method, availableMethods);
+			return true;
 		}
 
 		public void Process()
 		{
-			if (string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput)
+			if (IsNothingToSubstitute())
 			{
-				Logger.Error("Empty word to substitution");
-				Console.WriteLine($"{GetErrorMessage("Empty word to substitution")}{_helpMessage}");
+				Logger.Error("Nothing for substitute. Specify word or use \"-i\" option");
+				Console.WriteLine($"{GetErrorMessage("Nothing for substitute. Specify word or use \"-i\" option")}{_helpMessage}");
 				return;
 			}
 
-			var jsonString = ReadJson();
-
-			if (!ValidateJsonScheme(jsonString))
-			{
-				Logger.Error("Json syntax is invalid. Please check your file");
-				Console.WriteLine($"{GetErrorMessage("Json syntax is invalid. Please check your file")}{_helpMessage}");
-				return;
-			}
-			var availableMethods = GetAvailableMethods(jsonString);
-
-			var alphabet = GetAlphabetForMethod(_method, availableMethods);
-
-			var processingWord = _sourceWord;
 			while (true)
 			{
 				if (_isUseStdInput)
 				{
-					processingWord = Console.ReadLine();
-					if (string.IsNullOrEmpty(processingWord))
+					_sourceWord = Console.ReadLine();
+					if (IsInputHasStopped())
 					{
 						break;
 					}
 				}
-				var tokens = SplitWordToStringArray(processingWord);
+				var literals = GetLiterals(_sourceWord);
 
-				var wordsToSubs = new List<string[]> { tokens };
+				var substitutableWord = new List<string[]> { literals };
 
 				IEnumerable<string> result;
 				try
 				{
-					result = GetSubstitute(wordsToSubs, alphabet, tokens.Length);
+					result = GetSubstitute(substitutableWord, _alphabet, literals.Length);
 				}
 				catch (ArgumentException exception)
 				{
@@ -120,6 +129,13 @@ namespace PasswordListGenerator
 				}
 			}
 		}
+
+		private bool IsInputHasStopped()
+		{
+			return string.IsNullOrEmpty(_sourceWord);
+		}
+
+		private bool IsNothingToSubstitute() => string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput;
 
 		private IEnumerable<string> GetSubstitute(List<string[]> wordsToSubs, Dictionary<char, List<string>> alphabet, int colTokens)
 		{
@@ -152,7 +168,7 @@ namespace PasswordListGenerator
 			}
 		}
 
-		private string[] SplitWordToStringArray(string source)
+		private string[] GetLiterals(string source)
 		{
 			return Regex
 				.Split(source, string.Empty)
@@ -192,18 +208,18 @@ namespace PasswordListGenerator
 			return string.IsNullOrEmpty(result) ? Resources.EnglishLeetDict : result;
 		}
 
-		private bool ValidateJsonScheme(string jsonString)
+		private bool IsJsonSchemeNotValid(string jsonString)
 		{
 			var schemaGenerator = new JSchemaGenerator();
 			var schemaForLetter = schemaGenerator.Generate(typeof(Dictionary<string, JsonSubsMethod>));
 			try
 			{
 				var jsonObj = JObject.Parse(jsonString);
-				return jsonObj.IsValid(schemaForLetter);
+				return !jsonObj.IsValid(schemaForLetter);
 			}
 			catch
 			{
-				return false;
+				return true;
 			}
 		}
 
@@ -233,13 +249,13 @@ namespace PasswordListGenerator
 
 			foreach (var word in wordsToSubs)
 			{
-				var substitutesForSymbol = GetAllPossibleSubstitutesForSymbol(subsSymbols, word, index);
+				var substitutesForSymbol = GetAllPossibleSubstitutesForLiteral(subsSymbols, word, index);
 				result.AddRange(substitutesForSymbol);
 			}
 			return result;
 		}
 
-		private List<string[]> GetAllPossibleSubstitutesForSymbol(Dictionary<char, List<string>> subsSymbols, string[] word, int index)
+		private List<string[]> GetAllPossibleSubstitutesForLiteral(Dictionary<char, List<string>> subsSymbols, string[] word, int index)
 		{
 			var result = new List<string[]>();
 			var key = _isIgnoreCase ? char.ToUpper(word[index][0]) : word[index][0];
