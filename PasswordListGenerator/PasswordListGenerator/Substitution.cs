@@ -1,4 +1,4 @@
-﻿// Copyright 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ namespace PasswordListGenerator
 
 			if (!Initialize())
 			{
-				Console.WriteLine("Can't initialize subs option");
+				Console.WriteLine($"{GetErrorMessage("Can't initialize subs option")}{_helpMessage}");
 			}
 		}
 
@@ -86,7 +86,14 @@ namespace PasswordListGenerator
 			{
 				if (_isUseStdInput)
 				{
-					_sourceWord = Console.ReadLine();
+					try
+					{
+						_sourceWord = Console.ReadLine();
+					}
+					catch (IOException)
+					{
+						break;
+					}
 					if (IsInputHasStopped())
 					{
 						break;
@@ -99,7 +106,7 @@ namespace PasswordListGenerator
 				IEnumerable<string> result;
 				try
 				{
-					result = GetSubstitute(substitutableWord, _alphabet, literals.Length);
+					result = GetSubstitutions(substitutableWord, _alphabet, literals.Length);
 				}
 				catch (ArgumentException exception)
 				{
@@ -130,14 +137,11 @@ namespace PasswordListGenerator
 			}
 		}
 
-		private bool IsInputHasStopped()
-		{
-			return string.IsNullOrEmpty(_sourceWord);
-		}
+		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
 
 		private bool IsNothingToSubstitute() => string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput;
 
-		private IEnumerable<string> GetSubstitute(List<string[]> wordsToSubs, Dictionary<char, List<string>> alphabet, int colTokens)
+		private IEnumerable<string> GetSubstitutions(List<string[]> wordsToSubs, Dictionary<char, List<string>> alphabet, int colTokens)
 		{
 			for (var index = 0; index < colTokens; index++)
 			{

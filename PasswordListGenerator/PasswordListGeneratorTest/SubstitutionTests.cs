@@ -1,5 +1,6 @@
-﻿// Copyright 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
+using System.Collections;
 using System.IO;
 using System.Text;
 using CommandLine;
@@ -15,15 +16,13 @@ namespace PasswordListGeneratorTest
 		public void Init()
 		{
 		}
+
 		#region SourceWordTests
-		[Test]
+
+		[Test, TestCaseSource(typeof(SourceWordTestArguments), nameof(SourceWordTestArguments.ErrorTestCases))]
 		[Category("SourceWord")]
-		public void SourceWordEmptyNoParams_ShouldReturnErrorAndHelp()
+		public void SourceWord_ShouldReturnErrorAndHelp(string[] args)
 		{
-			var args = new[]
-			{
-				"subs"
-			};
 			var subsOptions = ParseSubOptions(args);
 			
 			var subsInstance = new Substitution(subsOptions);
@@ -39,79 +38,11 @@ namespace PasswordListGeneratorTest
 			}
 		}
 
-		[Test]
+		[Test, TestCaseSource(typeof(SourceWordTestArguments), nameof(SourceWordTestArguments.OkTestCases))]
 		[Category("SourceWord")]
-		public void SourceWordOneSymbolNotInDict_ShouldReturnErrorAndHelp()
+		public void SourceWord_ShouldReturnSubstitutions(string[] args, string expected)
 		{
-			var args = new[]
-			{
-				"subs",
-				"{"
-			};
 			var subsOptions = ParseSubOptions(args);
-
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("SourceWord")]
-		public void SourceWordEmptyWithParams_ShouldReturnErrorAndHelp()
-		{
-			var args = new[]
-			{
-				"subs",
-				"-d",
-				"Test.json",
-				"--ignore-case",
-				"-m",
-				"MadLeet",
-				"-o",
-				"Test.txt",
-				"--in-encoding",
-				"test",
-				"--out-encoding",
-				"test"
-			};
-
-			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("SourceWord")]
-		public void SourceWordOneLetterNoParams_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-			               "[\r\n" +
-			               "{\r\n" +
-			               "(\r\n" +
-			               "<\r\n";
 			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
@@ -120,77 +51,70 @@ namespace PasswordListGeneratorTest
 			}
 		}
 
-		[Test]
-		[Category("SourceWord")]
-		public void SourceWordThreeLetterNoParams_ShouldReturnSubstitutions()
+		private class SourceWordTestArguments
 		{
-			var args = new[]
+			public static IEnumerable ErrorTestCases
 			{
-				"subs",
-				"BZS"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "BZS\r\n" +
-			               "|3ZS\r\n" +
-			               "8ZS\r\n" +
-			               "B2S\r\n" +
-			               "B7_S\r\n" +
-			               "|32S\r\n" +
-			               "|37_S\r\n" +
-			               "82S\r\n" +
-			               "87_S\r\n" +
-			               "BZ5\r\n" +
-			               "BZ$\r\n" +
-			               "|3Z5\r\n" +
-			               "|3Z$\r\n" +
-			               "8Z5\r\n" +
-			               "8Z$\r\n" +
-			               "B25\r\n" +
-			               "B2$\r\n" +
-			               "B7_5\r\n" +
-			               "B7_$\r\n" +
-			               "|325\r\n" +
-			               "|32$\r\n" +
-			               "|37_5\r\n" +
-			               "|37_$\r\n" +
-			               "825\r\n" +
-			               "82$\r\n" +
-			               "87_5\r\n" +
-			               "87_$\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
-			}
-		}
+				get
+				{
+					yield return new TestCaseData(arg: new[] {"subs"})
+						.SetCategory("SourceWord")
+						.SetName("Empty source word");
 
-		[Test]
-		[Category("SourceWord")]
-		public void SourceWordThreeSymbolsNotFromDict_ShouldReturnErrorAndHelp()
-		{
-			var args = new[]
-			{
-				"subs",
-				"^&*"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
+					yield return new TestCaseData(arg: new[] {"subs", "{"})
+						.SetCategory("SourceWord")
+						.SetName("One symbol source word not in dict");
 
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
+					yield return new TestCaseData(arg: new[]
+					{
+						"subs",
+						"-d",
+						"Test.json",
+						"--ignore-case",
+						"-m",
+						"MadLeet",
+						"-o",
+						"Test.txt",
+						"--in-encoding",
+						"test",
+						"--out-encoding",
+						"test"
+					})
+						.SetCategory("SourceWord")
+						.SetName("With parameters and without source word");
+
+					yield return new TestCaseData(arg: new[] {"subs", "^&*"})
+						.SetCategory("SourceWord")
+						.SetName("Three symbols source word not in dict");
+				}
 			}
-		}
+
+			public static IEnumerable OkTestCases
+			{
+				get
+				{
+					yield return new TestCaseData(
+							arg1: new[] {"subs", "C"}, 
+							arg2: "C\r\n[\r\n{\r\n(\r\n<\r\n")
+						.SetCategory("SourceWord")
+						.SetName("Source word in one symbol");
+					yield return new TestCaseData(
+							arg1: new[] {"subs", "BZS"}, 
+							arg2: "BZS\r\n|3ZS\r\n8ZS\r\nB2S\r\nB7_S\r\n"
+									+"|32S\r\n|37_S\r\n82S\r\n87_S\r\nBZ5\r\nBZ$\r\n|3Z5\r\n"
+									+"|3Z$\r\n8Z5\r\n8Z$\r\nB25\r\nB2$\r\nB7_5\r\nB7_$\r\n"
+									+"|325\r\n|32$\r\n|37_5\r\n|37_$\r\n825\r\n" +
+									"82$\r\n87_5\r\n87_$\r\n")
+						.SetCategory("SourceWord")
+						.SetName("Source word in three symbols");
+				}
+			}
+		};
 
 		#endregion
 
 		#region IgnoreCaseTests
+
 		[Test]
 		[Category("IgnoreCase")]
 		public void SourceWordThreeLetterIgnoreCase_ShouldReturnSubstitutions()
@@ -259,89 +183,64 @@ namespace PasswordListGeneratorTest
 				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
+
 		#endregion
 
 		#region MethodsTests
-		[Test]
+
+		[Test, TestCaseSource(typeof(MethodTestArguments), nameof(MethodTestArguments.OkTestCases))]
 		[Category("Methods")]
-		public void SourceWordOneLetterPronunMethod_ShouldReturnSubstitutions()
+		public string Methods_ShouldReturnSubstitutions(string[] args)
 		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"Pronunciation"
-			};
 			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-			               "cee\r\n";
 			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
+				return consoleOutput.GetOuput();
+			}
+		}
+
+		private class MethodTestArguments
+		{
+			public static IEnumerable OkTestCases
+			{
+				get
+				{
+					yield return new TestCaseData(arg: new[] { "subs", "C", "-m", "Pronunciation" })
+						.Returns("C\r\ncee\r\n")
+						.SetCategory("Methods")
+						.SetName("One letter pronunciation");
+					yield return new TestCaseData(arg: new[] { "subs", "BZS", "-m", "Pronunciation" })
+						.Returns("BZS\r\nbeeZS\r\nBzedS\r\nbeezedS\r\nBZess\r\nbeeZess\r\nBzedess\r\nbeezedess\r\n")
+						.SetCategory("Methods")
+						.SetName("Three letter pronunciation");
+
+					yield return new TestCaseData(arg: new[] { "subs", "C", "-m", "MadLeet" })
+						.Returns("C\r\n[\r\n¢\r\n{\r\n<\r\n(\r\n©\r\n")
+						.SetCategory("Methods")
+						.SetName("One letter mad leet");
+
+					yield return new TestCaseData(arg: new[] { "subs", "C", "-m", "Cyrillic" })
+						.Returns("C\r\nС\r\n")
+						.SetCategory("Methods")
+						.SetName("One letter cyrillic");
+					yield return new TestCaseData(arg: new[] { "subs", "ABC", "-m", "Cyrillic" })
+						.Returns("ABC\r\nАBC\r\nAВC\r\nАВC\r\nABС\r\nАBС\r\nAВС\r\nАВС\r\n")
+						.SetCategory("Methods")
+						.SetName("Three letter cyrillic");
+
+					yield return new TestCaseData(arg: new[] { "subs", "C", "-m", "prOnunCiatiON" })
+						.Returns("C\r\ncee\r\n")
+						.SetCategory("Methods")
+						.SetName("Method in wrong case");
+				}
 			}
 		}
 
 		[Test]
 		[Category("Methods")]
-		public void SourceWordThreeLetterPronunMethod_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"BZS",
-				"-m",
-				"Pronunciation"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "BZS\r\n" +
-			               "beeZS\r\n" +
-			               "BzedS\r\n" +
-			               "beezedS\r\n" +
-			               "BZess\r\n" +
-			               "beeZess\r\n" +
-			               "Bzedess\r\n" +
-			               "beezedess\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void SourceWordOneLetterMadLeetMethod_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"MadLeet"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-			               "[\r\n" +
-			               "¢\r\n" +
-			               "{\r\n" +
-			               "<\r\n" +
-			               "(\r\n" +
-			               "©\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void SourceWordThreeLetterMadLeetMethod_ShouldReturnSubstitutions()
+		public void MadLeetThreeSymbols_ShouldReturnSubstitutions()
 		{
 			var args = new[]
 			{
@@ -351,84 +250,11 @@ namespace PasswordListGeneratorTest
 				"MadLeet"
 			};
 			var subsOptions = ParseSubOptions(args);
-
 			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(1041 + 1, consoleOutput.GetOuput().Split('\n').Length);
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void SourceWordOneLetterCyrillicMethod_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"Cyrillic"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-			               "С\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void SourceWordThreeLetterCyrillicMethod_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"ABC",
-				"-m",
-				"Cyrillic"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "ABC\r\n" +
-							"АBC\r\n" +
-							"AВC\r\n" +
-							"АВC\r\n" +
-							"ABС\r\n" +
-							"АBС\r\n" +
-							"AВС\r\n" +
-							"АВС\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
-			}
-		}
-
-		[Test]
-		[Category("Methods")]
-		public void MethodInWrongCase_ShouldReturnSubstitutions()
-		{
-			var args = new[]
-			{
-				"subs",
-				"C",
-				"-m",
-				"prOnunCiatiON"
-			};
-			var subsOptions = ParseSubOptions(args);
-			var expected = "C\r\n" +
-							"cee\r\n";
-			var subsInstance = new Substitution(subsOptions);
-			using (var consoleOutput = new ConsoleOutput())
-			{
-				subsInstance.Process();
-				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
+				Assert.AreEqual(consoleOutput.GetOuput().Split('\n').Length, 1041);
 			}
 		}
 
@@ -456,9 +282,11 @@ namespace PasswordListGeneratorTest
 				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
 			}
 		}
+
 		#endregion
 
 		#region DictionaryTests
+
 		[Test]
 		[Category("Dictionary")]
 		public void EmptyDict_ShouldReturnDefaultSubstitutions()
@@ -599,10 +427,10 @@ namespace PasswordListGeneratorTest
 				"testDict1.txt"
 			};
 			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
-				subsInstance.Process();
+				var subsInstance = new Substitution(subsOptions);
+				
 				File.Delete("testDict1.txt");
 				var consoleText = consoleOutput.GetOuput();
 				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
@@ -612,9 +440,11 @@ namespace PasswordListGeneratorTest
 				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
+
 		#endregion
 
 		#region OutputTests
+
 		[Test]
 		[Category("Output")]
 		public void OutputFileNotSpecified_ShouldPrintInConsole()
@@ -652,11 +482,13 @@ namespace PasswordListGeneratorTest
 			File.Delete("outputTest.txt");
 			Assert.That(text.Contains("B\r\n|3\r\n8\r\n"), Is.True);
 		}
+
 		#endregion
 
 		#region StdInputTests
 
 		[Test]
+		[Category("Input")]
 		public void StdInputWithSourceWord_ShouldIgnoreSourceWord()
 		{
 			var args = new[]
@@ -666,9 +498,9 @@ namespace PasswordListGeneratorTest
 				"-i"
 			};
 			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
+				var subsInstance = new Substitution(subsOptions);
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
 				Assert.That(consoleText.Equals("Selected method is GoodLeet\r\n"), Is.True);
@@ -676,6 +508,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Input")]
 		public void StdInputThreeSymbolsInput_ShouldPrintSubstitution()
 		{
 			var args = new[]
@@ -684,11 +517,11 @@ namespace PasswordListGeneratorTest
 				"-i"
 			};
 			var subsOptions = ParseSubOptions(args);
-			var subsInstance = new Substitution(subsOptions);
 			using (new ConsoleInput("B\r\nC\r\n"))
 			{
 				using (var consoleOutput = new ConsoleOutput())
 				{
+					var subsInstance = new Substitution(subsOptions);
 					subsInstance.Process();
 					var consoleText = consoleOutput.GetOuput();
 					Assert.That(consoleText.Equals("Selected method is GoodLeet\r\nB\r\n|3\r\n8\r\nC\r\n[\r\n{\r\n(\r\n<\r\n"));
@@ -697,6 +530,7 @@ namespace PasswordListGeneratorTest
 		}
 
 		[Test]
+		[Category("Input")]
 		public void StdInputOneWrongSymbolInput_ShouldPrintErrorAndContinueWork()
 		{
 			var args = new[]
