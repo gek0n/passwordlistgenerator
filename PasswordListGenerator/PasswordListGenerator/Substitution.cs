@@ -16,7 +16,7 @@ namespace PasswordListGenerator
 {
 	public class Substitution : IVerbOption
 	{
-		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly Logger Logger = new Logger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		private readonly string _method;
 		private readonly bool _isIgnoreCase;
@@ -54,7 +54,7 @@ namespace PasswordListGenerator
 
 			if (!Initialize())
 			{
-				Console.WriteLine($"{GetErrorMessage("Can't initialize subs option")}{_helpMessage}");
+				Logger.ErrorAndPrint("Can't initialize subs option");
 			}
 		}
 
@@ -63,8 +63,7 @@ namespace PasswordListGenerator
 			var jsonString = ReadJson();
 			if (IsJsonSchemeNotValid(jsonString))
 			{
-				Logger.Error("Json syntax is invalid. Please check your file");
-				Console.WriteLine($"{GetErrorMessage("Json syntax is invalid. Please check your file")}{_helpMessage}");
+				Logger.ErrorAndPrint("Json syntax is invalid. Please check your file");
 				return false;
 			}
 
@@ -77,8 +76,7 @@ namespace PasswordListGenerator
 		{
 			if (IsNothingToSubstitute())
 			{
-				Logger.Error("Nothing for substitute. Specify word or use \"-i\" option");
-				Console.WriteLine($"{GetErrorMessage("Nothing for substitute. Specify word or use \"-i\" option")}{_helpMessage}");
+				Logger.ErrorAndPrint("Nothing for substitute. Specify word or use \"-i\" option");
 				return;
 			}
 
@@ -99,7 +97,8 @@ namespace PasswordListGenerator
 						break;
 					}
 				}
-				var literals = GetLiterals(_sourceWord);
+
+				var literals = SplitToLiterals(_sourceWord);
 
 				var substitutableWord = new List<string[]> { literals };
 
@@ -110,13 +109,11 @@ namespace PasswordListGenerator
 				}
 				catch (ArgumentException exception)
 				{
-					Logger.Error(exception.Message);
 					if (_isUseStdInput)
 					{
-						Console.WriteLine($"{GetErrorMessage(exception.Message)}");
+						Logger.ErrorAndPrint(exception.Message);
 						continue;
 					}
-					Console.WriteLine($"{GetErrorMessage(exception.Message)}{_helpMessage}");
 					return;
 				}
 
@@ -126,8 +123,7 @@ namespace PasswordListGenerator
 				}
 				catch (Exception exception)
 				{
-					Logger.Error(exception.Message);
-					Console.WriteLine("Output file error. See log file for more information");
+					Logger.ErrorAndPrint(exception.Message);
 					return;
 				}
 				if (!_isUseStdInput)
@@ -172,7 +168,7 @@ namespace PasswordListGenerator
 			}
 		}
 
-		private string[] GetLiterals(string source)
+		private string[] SplitToLiterals(string source)
 		{
 			return Regex
 				.Split(source, string.Empty)
@@ -188,8 +184,7 @@ namespace PasswordListGenerator
 			}
 			catch (ArgumentException)
 			{
-				Logger.Warn($"Can't using {encoding} encoding. Fallback to utf-8");
-				Console.WriteLine($"Warning! Can't using {encoding} encoding. Fallback to utf-8");
+				Logger.WarnAndPrint($"Can't using {encoding} encoding. Fallback to utf-8");
 				return Encoding.UTF8;
 			}
 		}
@@ -236,15 +231,18 @@ namespace PasswordListGenerator
 		private Dictionary<char, List<string>> GetAlphabetForMethod(string method, Dictionary<string, JsonSubsMethod> availableMethods)
 		{
 			JsonSubsMethod subsMethod;
+			Dictionary<char, List<string>> alphabet;
 			if (method != null && availableMethods.TryGetValue(method, out subsMethod))
 			{
-				Logger.Info($"Selected method is {method}");
-				Console.WriteLine($"Selected method is {method}");
-				return availableMethods[method];
+				alphabet = availableMethods[method];
 			}
-			Logger.Info($"Selected method is {availableMethods.First().Key}");
-			Console.WriteLine($"Selected method is {availableMethods.First().Key}");
-			return availableMethods.First().Value;
+			else
+			{
+				method = availableMethods.First().Key;
+				alphabet = availableMethods.First().Value;
+			}
+			Logger.InfoAndPrint($"Selected method is {method}");
+			return alphabet;
 		}
 
 		private List<string[]> GetAllPossibleSubstitutesForEveryWord(List<string[]> wordsToSubs, Dictionary<char, List<string>> subsSymbols, int index)
@@ -266,7 +264,7 @@ namespace PasswordListGenerator
 			List<string> colletion;
 			if (!subsSymbols.TryGetValue(key, out colletion))
 			{
-				throw new ArgumentException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
+				throw new VerbOptionException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
 			}
 			foreach (var symbol in colletion)
 			{
