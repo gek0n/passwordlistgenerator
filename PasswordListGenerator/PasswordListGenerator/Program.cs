@@ -23,15 +23,11 @@ namespace PasswordListGenerator
 		        }
 		        verbOption.Process();
 		    }
-		    catch (ArgumentNullException e)
-		    {
-		        Logger.Error(e.Message);
-		    }
 		    catch (ArgumentException e)
 		    {
 		        Logger.Error(e.Message);
 		    }
-		    catch (Exception exception)
+		    catch (VerbOptionException exception)
 		    {
 		        Logger.ErrorAndPrint(exception.Message);
 		    }

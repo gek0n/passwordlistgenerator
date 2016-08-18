@@ -29,6 +29,15 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
+	public class SourceWordSubstituteException : VerbOptionException
+	{
+		public SourceWordSubstituteException(string msg) : base(msg)
+		{ }
+
+		public SourceWordSubstituteException(string msg, Exception innerException) : base(msg, innerException)
+		{ }
+	}
+
 	public class DeserializeSubstituteException : VerbOptionException
 	{
 		public DeserializeSubstituteException(string msg) : base(msg)
@@ -38,12 +47,12 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class NotInTheDictionarySubstituteException3 : VerbOptionException
+	public class IOSubstituteException : VerbOptionException
 	{
-		public NotInTheDictionarySubstituteException3(string msg) : base(msg)
+		public IOSubstituteException(string msg) : base(msg)
 		{ }
 
-		public NotInTheDictionarySubstituteException3(string msg, Exception innerException) : base(msg, innerException)
+		public IOSubstituteException(string msg, Exception innerException) : base(msg, innerException)
 		{ }
 	}
 }

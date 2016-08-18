@@ -3,6 +3,7 @@
 using System.Collections;
 using System.IO;
 using System.Text;
+using System.Threading;
 using CommandLine;
 using NUnit.Framework;
 using PasswordListGenerator;
@@ -13,9 +14,16 @@ namespace PasswordListGeneratorTest
 	[TestFixture]
 	public class SubstitutionTests
 	{
+		[OneTimeSetUp]
+		public void OnceInit()
+		{
+			
+		}
+
 		[SetUp]
 		public void Init()
 		{
+			Thread.Sleep(2000);
 		}
 
 		#region SourceWordTests
@@ -255,7 +263,7 @@ namespace PasswordListGeneratorTest
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				subsInstance.Process();
-				Assert.AreEqual(consoleOutput.GetOuput().Split('\n').Length, 1041);
+				Assert.AreEqual(1041, consoleOutput.GetOuput().Split('\n').Length);
 			}
 		}
 
