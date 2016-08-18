@@ -6,6 +6,7 @@ using System.Text;
 using CommandLine;
 using NUnit.Framework;
 using PasswordListGenerator;
+using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGeneratorTest
 {

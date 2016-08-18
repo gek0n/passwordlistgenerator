@@ -12,7 +12,7 @@ using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 using PasswordListGenerator.Properties;
 
-namespace PasswordListGenerator
+namespace PasswordListGenerator.Substitutions
 {
 	public class Substitution : IVerbOption
 	{
@@ -26,15 +26,14 @@ namespace PasswordListGenerator
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
-		private readonly string _helpMessage;
-		private readonly string _errorMessage = "[ERROR]: {0}" + Environment.NewLine + Environment.NewLine;
+		private readonly string _additionalHelpMessage;
 
 		private string _sourceWord;
 		private Dictionary<char, List<string>> _alphabet;
 
 		public Substitution(SubstituteSubOptions subsOptions)
 		{
-			_helpMessage = subsOptions.GetUsage();
+			_additionalHelpMessage = subsOptions.GetUsage();
 			_sourceWord = subsOptions.SourceWord;
 			_method = subsOptions.Method?.ToLowerInvariant();
 			_isIgnoreCase = subsOptions.IsIgnoreCase;
@@ -52,24 +51,19 @@ namespace PasswordListGenerator
 						$"inEncoding = {_inEncoding}" +
 						$"outEncoding = {_outEncoding}");
 
-			if (!Initialize())
-			{
-				Logger.ErrorAndPrint("Can't initialize subs option");
-			}
+		    Initialize();
 		}
 
-		private bool Initialize()
+		private void Initialize()
 		{
 			var jsonString = ReadJson();
 			if (IsJsonSchemeNotValid(jsonString))
 			{
-				Logger.ErrorAndPrint("Json syntax is invalid. Please check your file");
-				return false;
-			}
+                throw new ValidationJsonSubstituteException("Json scheme is invalid. Please check your file");
+            }
 
 			var availableMethods = GetAvailableMethods(jsonString);
 			_alphabet = GetAlphabetForMethod(_method, availableMethods);
-			return true;
 		}
 
 		public void Process()
@@ -77,9 +71,10 @@ namespace PasswordListGenerator
 			if (IsNothingToSubstitute())
 			{
 				Logger.ErrorAndPrint("Nothing for substitute. Specify word or use \"-i\" option");
+                Console.WriteLine(_additionalHelpMessage);
 				return;
 			}
-
+            // TODO: Insert something like "METHOD: GoodLeet\r\nENCODING: utf8\r\nDICTIONARY: default"
 			while (true)
 			{
 				if (_isUseStdInput)
@@ -100,26 +95,28 @@ namespace PasswordListGenerator
 
 				var literals = SplitToLiterals(_sourceWord);
 
-				var substitutableWord = new List<string[]> { literals };
+				var substitutableWords = new List<string[]> { literals };
 
 				IEnumerable<string> result;
 				try
 				{
-					result = GetSubstitutions(substitutableWord, _alphabet, literals.Length);
+					result = GetSubstitutions(substitutableWords, _alphabet);
 				}
-				catch (ArgumentException exception)
+				catch (VerbOptionException exception)
 				{
-					if (_isUseStdInput)
+				    Logger.ErrorAndPrint(exception.Message);
+
+				    if (_isUseStdInput)
 					{
-						Logger.ErrorAndPrint(exception.Message);
-						continue;
+					    continue;
 					}
+
 					return;
 				}
 
 				try
 				{
-					GetResult(result);
+					ReturnResult(result);
 				}
 				catch (Exception exception)
 				{
@@ -137,17 +134,18 @@ namespace PasswordListGenerator
 
 		private bool IsNothingToSubstitute() => string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput;
 
-		private IEnumerable<string> GetSubstitutions(List<string[]> wordsToSubs, Dictionary<char, List<string>> alphabet, int colTokens)
+		private IEnumerable<string> GetSubstitutions(List<string[]> substitutableWords, Dictionary<char, List<string>> alphabet)
 		{
+		    var colTokens = substitutableWords[0].Length;
 			for (var index = 0; index < colTokens; index++)
 			{
-				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(wordsToSubs, alphabet, index);
-				wordsToSubs.AddRange(newWordsToSubs);
+				var newWordsToSubs = GetAllPossibleSubstitutesForEveryWord(substitutableWords, alphabet, index);
+				substitutableWords.AddRange(newWordsToSubs);
 			}
-			return wordsToSubs.Select(word => word.Aggregate((i, s) => i + s));
+			return substitutableWords.Select(word => word.Aggregate((i, s) => i + s));
 		}
 
-		private void GetResult(IEnumerable<string> result)
+		private void ReturnResult(IEnumerable<string> result)
 		{
 			if (string.IsNullOrEmpty(_outFilename))
 			{
@@ -194,10 +192,12 @@ namespace PasswordListGenerator
 			string result;
 			if (string.IsNullOrEmpty(_dictFilename))
 			{
+                Logger.Warn("Dictionary file is not specified. Default dictionary will be used");
 				return Resources.EnglishLeetDict;
 			}
 			if (!File.Exists(_dictFilename))
 			{
+				Logger.WarnAndPrint($"Dictionary file \"{_dictFilename}\" not found. Default dictionary will be used");
 				return Resources.EnglishLeetDict;
 			}
 			using (var stream = new StreamReader(_dictFilename, _inEncoding))
@@ -216,16 +216,26 @@ namespace PasswordListGenerator
 				var jsonObj = JObject.Parse(jsonString);
 				return !jsonObj.IsValid(schemaForLetter);
 			}
-			catch
+			catch(JsonReaderException exception)
 			{
-				return true;
+				throw new ParseJsonSubstituteException(exception.Message);
 			}
 		}
 
 		private Dictionary<string, JsonSubsMethod> GetAvailableMethods(string jsonString)
 		{
-			var originalDictionary = JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
-			return new Dictionary<string, JsonSubsMethod>(originalDictionary, StringComparer.OrdinalIgnoreCase);
+		    Dictionary<string, JsonSubsMethod> originalDictionary;
+
+		    try
+		    {
+		        originalDictionary = JsonConvert.DeserializeObject<Dictionary<string, JsonSubsMethod>>(jsonString);
+		    }
+		    catch (JsonSerializationException exception)
+		    {
+		        throw new DeserializeSubstituteException(exception.Message);
+		    }
+            
+		    return new Dictionary<string, JsonSubsMethod>(originalDictionary, StringComparer.OrdinalIgnoreCase);
 		}
 
 		private Dictionary<char, List<string>> GetAlphabetForMethod(string method, Dictionary<string, JsonSubsMethod> availableMethods)
@@ -241,7 +251,7 @@ namespace PasswordListGenerator
 				method = availableMethods.First().Key;
 				alphabet = availableMethods.First().Value;
 			}
-			Logger.InfoAndPrint($"Selected method is {method}");
+			Logger.Info($"Selected method is {method}");
 			return alphabet;
 		}
 
@@ -264,7 +274,7 @@ namespace PasswordListGenerator
 			List<string> colletion;
 			if (!subsSymbols.TryGetValue(key, out colletion))
 			{
-				throw new VerbOptionException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
+				throw new NotInTheDictionarySubstituteException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
 			}
 			foreach (var symbol in colletion)
 			{
@@ -273,11 +283,6 @@ namespace PasswordListGenerator
 				result.Add(buf);
 			}
 			return result;
-		}
-
-		private string GetErrorMessage(string msg)
-		{
-			return string.Format(_errorMessage, msg);
 		}
 	}
 }

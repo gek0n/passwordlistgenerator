@@ -6,6 +6,7 @@ namespace PasswordListGenerator
 	public class Logger
 	{
 		private readonly log4net.ILog _log;
+		private static readonly string ErrorMessage = Environment.NewLine + "[ERROR]: {0}";
 
 		public Logger(Type type)
 		{
@@ -44,7 +45,8 @@ namespace PasswordListGenerator
 
 		public void ErrorAndPrint(string msg)
 		{
-			LogAndPrint(_log.Error, msg);
+			_log.Error(msg);
+			Console.WriteLine(GetErrorMessage(msg));
 		}
 
 		public void FatalAndPrint(string msg)
@@ -71,6 +73,11 @@ namespace PasswordListGenerator
 		private static void Log(Action<string> logMethod, string msg)
 		{
 			logMethod(msg);
+		}
+
+		private static string GetErrorMessage(string msg)
+		{
+			return string.Format(ErrorMessage, msg);
 		}
 	}
 }

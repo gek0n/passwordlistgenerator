@@ -21,7 +21,7 @@ using CommandLine;
 	"\nThis is free software. You may redistribute copies of it under the terms of",
 	"the MIT License <link_here>")]
 [assembly: AssemblyUsage(
-	"\nUsage: PasswordListGenerator <some_verb> [keys] required_value")]
+	"\nUsage: PasswordListGenerator <command> [keys] required_value")]
 
 // Параметр ComVisible со значением FALSE делает типы в сборке невидимыми 
 // для COM-компонентов.  Если требуется обратиться к типу в этой сборке через 

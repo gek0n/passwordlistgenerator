@@ -4,6 +4,9 @@ namespace PasswordListGenerator
 {
 	public class VerbOptionException : Exception
 	{
+		public VerbOptionException()
+		{ }
+
 		public VerbOptionException(string message) : base(message)
 		{ }
 

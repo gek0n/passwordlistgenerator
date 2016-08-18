@@ -13,36 +13,45 @@ namespace PasswordListGenerator
 		private static void Main(string[] args)
 		{
 			Console.OutputEncoding = Encoding.UTF8;
-			try
-			{
-				var verbOption = CreateVerb(args);
-				verbOption.Process();
-			}
-			catch (ArgumentNullException e)
-			{
-				Logger.Error(e.Message);
-			}
-			catch (ArgumentException e)
-			{
-				Logger.Error(e.Message);
-			}
+		    try
+		    {
+		        var verbOption = CreateVerbOption(args);
+		        if (verbOption == null)
+		        {
+		            Logger.ErrorAndPrint("Can't create command handler");
+		            return;
+		        }
+		        verbOption.Process();
+		    }
+		    catch (ArgumentNullException e)
+		    {
+		        Logger.Error(e.Message);
+		    }
+		    catch (ArgumentException e)
+		    {
+		        Logger.Error(e.Message);
+		    }
+		    catch (Exception exception)
+		    {
+		        Logger.ErrorAndPrint(exception.Message);
+		    }
 		}
 
-		private static IVerbOption CreateVerb(string[] args)
+		private static IVerbOption CreateVerbOption(string[] args)
 		{
-			IVerbOption option = null;
+			IVerbOption verbOption = null;
 			if (!Parser
 				.Default
 				.ParseArguments(
 					args, 
 					new Options(), 
-					(verbName, verbInstance) => option = VerbOptionFactory.Construct(verbName, verbInstance)
+					(verbName, verbInstance) => verbOption = VerbOptionFactory.Construct(verbName, verbInstance)
 				)
 			)
 			{
 				throw new ArgumentException("Application can't parse arguments");
 			}
-			return option;
+			return verbOption;
 		}
 	}
 }
