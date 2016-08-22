@@ -2,6 +2,8 @@
 
 using CommandLine;
 using CommandLine.Text;
+using PasswordListGenerator.Combinations;
+using PasswordListGenerator.Helps;
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
@@ -9,10 +11,13 @@ namespace PasswordListGenerator
 	public class Options
 	{
 		[VerbOption("comb", HelpText = "Combine list of words in list of combinations")]
-		public CombineSubOptions CombineVerb { get; set; }
+		public CombineSubOption CombineVerb { get; set; }
 
 		[VerbOption("subs", HelpText = "Substitute all symbols in word with leet letters")]
-		public SubstituteSubOptions SubstituteVerb { get; set; }
+		public SubstituteSubOption SubstituteVerb { get; set; }
+
+		[VerbOption("helpa", HelpText = "Additional usage information about commands")]
+		public HelpSubOption HelpVerb { get; set; }
 
 		[HelpVerbOption]
 		public string GetUsage(string verb)
@@ -21,19 +26,7 @@ namespace PasswordListGenerator
 		}
 	}
     
-	public class CombineSubOptions : EncodingSubOptions
-	{
-		[Option("max-length", Required = false, HelpText = "Number of words in one combination (between 2 and 20)")]
-		public ushort MaxLength { get; set; }
-
-		[Option('i', "in-file", Required = true, HelpText = "File with list of keywords to make combination")]
-		public string KeywordFilename { get; set; }
-
-		[Option('o', "out-file", Required = false, HelpText = "File to write output combinations")]
-		public string CombinationFilename { get; set; }
-	}
-
-	public abstract class EncodingSubOptions
+	public abstract class EncodingSubOption
 	{
 		[Option("in-encoding", DefaultValue = "UTF-8", Required = false, HelpText = "Define input files encoding")]
 		public string InEncoding { get; set; }

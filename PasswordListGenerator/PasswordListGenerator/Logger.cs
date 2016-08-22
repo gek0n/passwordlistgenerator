@@ -7,6 +7,10 @@ namespace PasswordListGenerator
 	{
 		private readonly log4net.ILog _log;
 		private static readonly string ErrorMessage = Environment.NewLine + "[ERROR]: {0}";
+		private static readonly string WarningMessage = Environment.NewLine + "[WARNING]: {0}";
+		private static readonly string FatalMessage = Environment.NewLine + "[FATAL]: {0}";
+		private static readonly string InfoMessage = Environment.NewLine + "[INFO]: {0}";
+		private static readonly string DebugMessage = Environment.NewLine + "[DEBUG]: {0}";
 
 		public Logger(Type type)
 		{
@@ -40,44 +44,37 @@ namespace PasswordListGenerator
 
 		public void DebugAndPrint(string msg)
 		{
-			LogAndPrint(_log.Debug, msg);
+			Debug(msg);
+			Console.WriteLine(DebugMessage, msg);
 		}
 
 		public void ErrorAndPrint(string msg)
 		{
-			_log.Error(msg);
-			Console.WriteLine(GetErrorMessage(msg));
+			Error(msg);
+			Console.WriteLine(ErrorMessage, msg);
 		}
 
 		public void FatalAndPrint(string msg)
 		{
-			LogAndPrint(_log.Fatal, msg);
+			Fatal(msg);
+			Console.WriteLine(FatalMessage, msg);
 		}
 
 		public void InfoAndPrint(string msg)
 		{
-			LogAndPrint(_log.Info, msg);
+			Info(msg);
+			Console.WriteLine(InfoMessage, msg);
 		}
 
 		public void WarnAndPrint(string msg)
 		{
-			LogAndPrint(_log.Warn, msg);
-		}
-
-		private static void LogAndPrint(Action<string> logMethod, string msg)
-		{
-			Log(logMethod, msg);
-			Console.WriteLine(msg);
+			Warn(msg);
+			Console.WriteLine(WarningMessage, msg);
 		}
 
 		private static void Log(Action<string> logMethod, string msg)
 		{
 			logMethod(msg);
-		}
-
-		private static string GetErrorMessage(string msg)
-		{
-			return string.Format(ErrorMessage, msg);
 		}
 	}
 }

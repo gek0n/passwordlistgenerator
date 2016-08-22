@@ -20,12 +20,12 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class ValidationJsonSubstituteException : VerbOptionException
+	public class ValidateJsonSubstituteException : VerbOptionException
 	{
-		public ValidationJsonSubstituteException(string msg) : base(msg)
+		public ValidateJsonSubstituteException(string msg) : base(msg)
 		{ }
 
-		public ValidationJsonSubstituteException(string msg, Exception innerException) : base(msg, innerException)
+		public ValidateJsonSubstituteException(string msg, Exception innerException) : base(msg, innerException)
 		{ }
 	}
 

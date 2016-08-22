@@ -1,4 +1,5 @@
 ﻿using System;
+using PasswordListGenerator.Helps;
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
@@ -18,8 +19,13 @@ namespace PasswordListGenerator
 
 				case "subs":
 					Logger.Debug("Subs verb creating...");
-					var subsOptions = (SubstituteSubOptions)instance;
-                    return new Substitution(subsOptions);
+					var subsOption = (SubstituteSubOption)instance;
+                    return new Substitution(subsOption);
+
+				case "helpa":
+					Logger.Debug("Help verb creating...");
+					var helpOption = (HelpSubOption)instance;
+					return new Help(helpOption);
 
 				default:
 					Logger.Debug("Unknown verb");

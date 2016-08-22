@@ -566,7 +566,7 @@ namespace PasswordListGeneratorTest
 
 		#endregion
 
-		private static SubstituteSubOptions ParseSubOptions(string[] args)
+		private static SubstituteSubOption ParseSubOptions(string[] args)
 		{
 			object invokedVerbInstance = null;
 
@@ -576,7 +576,7 @@ namespace PasswordListGeneratorTest
 				Assert.Fail();
 			}
 
-			return (SubstituteSubOptions) invokedVerbInstance;
+			return (SubstituteSubOption) invokedVerbInstance;
 		}
 	}
 }
