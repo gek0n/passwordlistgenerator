@@ -1,6 +1,5 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 using System;
-using PasswordListGenerator.Helps;
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
@@ -14,19 +13,10 @@ namespace PasswordListGenerator
 			if (instance == null) return null;
 			switch (verb)
 			{
-				case "comb":
-					Logger.Debug("Comb verb");
-					throw new ArgumentException("It's not made yet");
-
 				case "subs":
 					Logger.Debug("Subs verb creating...");
 					var subsOption = (SubstituteSubOption)instance;
                     return new Substitution(subsOption);
-
-				case "helpa":
-					Logger.Debug("Help verb creating...");
-					var helpOption = (HelpSubOption)instance;
-					return new Help(helpOption);
 
 				default:
 					Logger.Debug("Unknown verb");

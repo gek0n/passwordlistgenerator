@@ -2,22 +2,14 @@
 
 using CommandLine;
 using CommandLine.Text;
-using PasswordListGenerator.Combinations;
-using PasswordListGenerator.Helps;
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
 {
 	public class Options
 	{
-		[VerbOption("comb", HelpText = "Combine list of words in list of combinations")]
-		public CombineSubOption CombineVerb { get; set; }
-
 		[VerbOption("subs", HelpText = "Substitute all symbols in word with leet letters")]
 		public SubstituteSubOption SubstituteVerb { get; set; }
-
-		[VerbOption("helpa", HelpText = "Additional usage information about commands")]
-		public HelpSubOption HelpVerb { get; set; }
 
 		[HelpVerbOption]
 		public string GetUsage(string verb)
