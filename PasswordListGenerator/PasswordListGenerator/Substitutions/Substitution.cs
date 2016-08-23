@@ -23,22 +23,29 @@ namespace PasswordListGenerator.Substitutions
 		private readonly string _dictFilename;
 		private readonly string _outFilename;
 		private readonly bool _isUseStdInput;
+		private readonly bool _isVerbose;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
 		private string _sourceWord;
+		private string _verboseMsg;
 		private Dictionary<char, List<string>> _alphabet;
 
 		public Substitution(SubstituteSubOption subsOption)
 		{
+			_verboseMsg = "";
 			_sourceWord = subsOption.SourceWord;
 			_method = subsOption.Method?.ToLowerInvariant();
 			_isIgnoreCase = subsOption.IsIgnoreCase;
 			_dictFilename = subsOption.DictFilename;
 			_outFilename = subsOption.OutFilename;
 			_isUseStdInput = subsOption.IsUseStdInput;
+			_isVerbose = subsOption.IsVerbose;
 			_inEncoding = TryGetEncoding(subsOption.InEncoding);
 			_outEncoding = TryGetEncoding(subsOption.OutEncoding);
+			_verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
+							$"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
+							$"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}";
 
 			Logger.Debug($"wordToSub = {_sourceWord}" +
 						$"method = {_method}" +
@@ -69,7 +76,12 @@ namespace PasswordListGenerator.Substitutions
 			{
 				throw new SourceWordSubstituteException("Nothing for substitute. Specify word or use \"-i\" option");
 			}
-			// TODO: Insert something like "METHOD: GoodLeet\r\nENCODING: utf8\r\nDICTIONARY: default"
+
+			if (_isVerbose)
+			{
+				Console.WriteLine(_verboseMsg);
+			}
+
 			while (true)
 			{
 				if (_isUseStdInput)
@@ -151,11 +163,16 @@ namespace PasswordListGenerator.Substitutions
 		{
 			try
 			{
-				var stream = string.IsNullOrEmpty(_outFilename)
-					? new StreamWriter(Console.OpenStandardOutput())
-					: new StreamWriter(_outFilename, _isUseStdInput, _outEncoding);
-				WriteResultToStream(result, stream);
-				stream.Close();
+				if (!string.IsNullOrEmpty(_outFilename))
+				{
+					var stream = new StreamWriter(_outFilename, _isUseStdInput, _outEncoding);
+					WriteResultToStream(result, stream.WriteLine);
+					stream.Close();
+				}
+				else
+				{
+					WriteResultToStream(result, Console.WriteLine);
+				}
 			}
 			catch (IOException exception)
 			{
@@ -163,11 +180,11 @@ namespace PasswordListGenerator.Substitutions
 			}
 		}
 
-		private static void WriteResultToStream(IEnumerable<string> result, StreamWriter stream)
+		private static void WriteResultToStream(IEnumerable<string> result, Action<string> writeLine)
 		{
 			foreach (var s in result)
 			{
-				stream.WriteLine(s);
+				writeLine(s);
 			}
 		}
 
@@ -198,18 +215,29 @@ namespace PasswordListGenerator.Substitutions
 			if (string.IsNullOrEmpty(_dictFilename))
 			{
 				Logger.Warn("Dictionary file is not specified. Default dictionary will be used");
+				_verboseMsg += $"[DICTIONARY]: default{Environment.NewLine}";
 				return Resources.EnglishLeetDict;
 			}
 			if (!File.Exists(_dictFilename))
 			{
 				Logger.WarnAndPrint($"Dictionary file \"{_dictFilename}\" not found. Default dictionary will be used");
+				_verboseMsg += $"[DICTIONARY]: default{Environment.NewLine}";
 				return Resources.EnglishLeetDict;
 			}
 			using (var stream = new StreamReader(_dictFilename, _inEncoding))
 			{
 				result = stream.ReadToEnd();
 			}
-			return string.IsNullOrEmpty(result) ? Resources.EnglishLeetDict : result;
+			if (string.IsNullOrEmpty(result))
+			{
+				_verboseMsg += $"[DICTIONARY]: default{Environment.NewLine}";
+				return Resources.EnglishLeetDict;
+			}
+			else
+			{
+				_verboseMsg += $"[DICTIONARY]: {_dictFilename}{Environment.NewLine}";
+				return result;
+			}
 		}
 
 		private bool IsJsonSchemeNotValid(string jsonString)
@@ -258,6 +286,7 @@ namespace PasswordListGenerator.Substitutions
 				alphabet = availableMethods.First().Value;
 			}
 			Logger.Info($"Selected method is {method}");
+			_verboseMsg += $"[METHOD]: {method}{Environment.NewLine}";
 			return alphabet;
 		}
 

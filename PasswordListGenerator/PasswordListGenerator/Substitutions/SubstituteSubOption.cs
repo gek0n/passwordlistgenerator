@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+using System.Text;
 using CommandLine;
 using CommandLine.Text;
 using PasswordListGenerator.Properties;
@@ -24,7 +25,10 @@ namespace PasswordListGenerator.Substitutions
 
 		[Option('i', Required = false, HelpText = "Use std input to get words for substitution")]
 		public bool IsUseStdInput { get; set; }
-		/*
+
+		[Option('v', "verbose", Required = false, HelpText = "Show detailed substitute module configuration")]
+		public bool IsVerbose { get; set; }
+		
 		[HelpOption]
 		public string GetUsage()
 		{
@@ -36,6 +40,5 @@ namespace PasswordListGenerator.Substitutions
 			helpStringBuilder.Append(Resources.AdditionalSubs_i_Usages);
 			return helpStringBuilder.ToString();
 		}
-		*/
 	}
 }

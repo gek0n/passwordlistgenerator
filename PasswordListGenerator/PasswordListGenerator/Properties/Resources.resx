@@ -119,13 +119,13 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="AdditionalSubsDictUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubsDictUsage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+    <value>..\Resources\AdditionalSubs_d_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="AdditionalSubsMethodUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubsMethodUsage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+    <value>..\Resources\AdditionalSubs_m_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="AdditionalSubs_i_Usages" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubs_i_Usages.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+    <value>..\Resources\AdditionalSubs_i_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="additionalUsage" xml:space="preserve">
     <value>Additional information for options:</value>

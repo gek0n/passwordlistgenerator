@@ -16,13 +16,38 @@ namespace PasswordListGenerator.Combinations
 
 		public void Process()
 		{
+			CheckParameters();
+		}
+
+		private void CheckParameters()
+		{
 			if (IsMaxLengthInValid())
+			{
+				//throw new error
+			}
+
+			if (IsKeywordFilenameInvalid())
+			{
+				//throw new error
+			}
+
+			if (IsCombinationFilenameInvalid())
 			{
 				//throw new error
 			}
 		}
 
 		private bool IsMaxLengthInValid() => !(_maxLength >= 2 && _maxLength <= 20);
+
+		private bool IsKeywordFilenameInvalid()
+		{
+			throw new NotImplementedException("Not implemented yet");
+		}
+
+		private bool IsCombinationFilenameInvalid()
+		{
+			throw new NotImplementedException("Not implemented yet");
+		}
 
 		private void GetCombinations()
 		{

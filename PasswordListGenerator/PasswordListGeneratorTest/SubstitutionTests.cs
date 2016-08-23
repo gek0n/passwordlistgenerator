@@ -1,5 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
@@ -14,16 +15,12 @@ namespace PasswordListGeneratorTest
 	[TestFixture]
 	public class SubstitutionTests
 	{
-		[OneTimeSetUp]
-		public void OnceInit()
-		{
-			
-		}
+		private static readonly Logger Logger = new Logger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		[SetUp]
 		public void Init()
 		{
-			Thread.Sleep(2000);
+			Thread.Sleep(2000); //Try to bypass license checker for NewthonJson (can't run more then 10 tests once)
 		}
 
 		#region SourceWordTests
@@ -37,13 +34,16 @@ namespace PasswordListGeneratorTest
 			var subsInstance = new Substitution(subsOptions);
 			using (var consoleOutput = new ConsoleOutput())
 			{
-				subsInstance.Process();
+				try
+				{
+					subsInstance.Process();
+				}
+				catch (VerbOptionException e)
+				{
+					Logger.ErrorAndPrint(e.Message);
+				}
 				var consoleText = consoleOutput.GetOuput();
 				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
 
@@ -186,10 +186,6 @@ namespace PasswordListGeneratorTest
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
 				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
 
@@ -435,18 +431,23 @@ namespace PasswordListGeneratorTest
 				"-d",
 				"testDict1.txt"
 			};
-			var subsOptions = ParseSubOptions(args);
+
+			SubstituteSubOption subsOptions;
 			using (var consoleOutput = new ConsoleOutput())
 			{
-				var subsInstance = new Substitution(subsOptions);
-				
+				try
+				{
+					subsOptions = ParseSubOptions(args);
+					var subsInstance = new Substitution(subsOptions);
+				}
+				catch (VerbOptionException e)
+				{
+					Logger.ErrorAndPrint(e.Message);
+				}
+
 				File.Delete("testDict1.txt");
 				var consoleText = consoleOutput.GetOuput();
 				Assert.That(consoleText.Contains("[ERROR]: "), Is.True);
-
-				Assert.That(consoleText.Contains("--ignore-case"), Is.True);
-				Assert.That(consoleText.Contains("--out-file"), Is.True);
-				Assert.That(consoleText.Contains("--dict"), Is.True);
 			}
 		}
 
@@ -512,7 +513,7 @@ namespace PasswordListGeneratorTest
 				var subsInstance = new Substitution(subsOptions);
 				subsInstance.Process();
 				var consoleText = consoleOutput.GetOuput();
-				Assert.That(consoleText.Equals("Selected method is GoodLeet\r\n"), Is.True);
+				Assert.That(consoleText.Equals(""), Is.True);
 			}
 		}
 
@@ -533,7 +534,7 @@ namespace PasswordListGeneratorTest
 					var subsInstance = new Substitution(subsOptions);
 					subsInstance.Process();
 					var consoleText = consoleOutput.GetOuput();
-					Assert.That(consoleText.Equals("Selected method is GoodLeet\r\nB\r\n|3\r\n8\r\nC\r\n[\r\n{\r\n(\r\n<\r\n"));
+					Assert.That(consoleText.Equals("B\r\n|3\r\n8\r\nC\r\n[\r\n{\r\n(\r\n<\r\n"));
 				}
 			}
 		}
@@ -566,6 +567,60 @@ namespace PasswordListGeneratorTest
 
 		#endregion
 
+		#region Verbose
+
+		[Test]
+		[Category("Vebose")]
+		public void StdDictMethodAndEncoding_ShouldPrintVerbose()
+		{
+			var args = new[]
+			{
+				"subs",
+				"QW",
+				"-v"
+			};
+			var subsOptions = ParseSubOptions(args);
+			using (new ConsoleInput("B\r\nC\r\n"))
+			{
+				using (var consoleOutput = new ConsoleOutput())
+				{
+					var subsInstance = new Substitution(subsOptions);
+					subsInstance.Process();
+					var consoleText = consoleOutput.GetOuput();
+					Assert.That(consoleText.Contains($"[METHOD]: GoodLeet{Environment.NewLine}"));
+					Assert.That(consoleText.Contains($"[DICTIONARY]: default{Environment.NewLine}"));
+				}
+			}
+		}
+
+		[Test]
+		[Category("Verbose")]
+		public void VerboseDictWithGoodLeetOnly_ShouldPrintVerbose()
+		{
+			var content = "{\r\n\t\"GLeet\": {\r\n\t\t\"C\": [\r\n\t\t\t\"[\",\r\n\t\t\t\"(\"\r\n\t\t]\r\n\t}\r\n}";
+			File.WriteAllText("testDict1.txt", content, Encoding.UTF8);
+
+			var args = new[]
+			{
+				"subs",
+				"C",
+				"-d",
+				"testDict1.txt",
+				"-v"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				File.Delete("testDict1.txt");
+				var consoleText = consoleOutput.GetOuput();
+				Assert.That(consoleText.Contains($"[DICTIONARY]: testDict1.txt{Environment.NewLine}"));
+				Assert.That(consoleText.Contains($"[METHOD]: GLeet{Environment.NewLine}"));
+			}
+		}
+		#endregion
+
 		private static SubstituteSubOption ParseSubOptions(string[] args)
 		{
 			object invokedVerbInstance = null;
@@ -580,3 +635,4 @@ namespace PasswordListGeneratorTest
 		}
 	}
 }
+ 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+using System;
 
 namespace PasswordListGenerator.Substitutions
 {
