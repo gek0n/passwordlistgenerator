@@ -31,18 +31,18 @@ namespace PasswordListGenerator.Substitutions
 		private string _verboseMsg;
 		private Dictionary<char, List<string>> _alphabet;
 
-		public Substitution(SubstituteSubOption subsOption)
+		public Substitution(SubstituteSubOption subOption)
 		{
 			_verboseMsg = "";
-			_sourceWord = subsOption.SourceWord;
-			_method = subsOption.Method?.ToLowerInvariant();
-			_isIgnoreCase = subsOption.IsIgnoreCase;
-			_dictFilename = subsOption.DictFilename;
-			_outFilename = subsOption.OutFilename;
-			_isUseStdInput = subsOption.IsUseStdInput;
-			_isVerbose = subsOption.IsVerbose;
-			_inEncoding = TryGetEncoding(subsOption.InEncoding);
-			_outEncoding = TryGetEncoding(subsOption.OutEncoding);
+			_sourceWord = subOption.SourceWord;
+			_method = subOption.Method?.ToLowerInvariant();
+			_isIgnoreCase = subOption.IsIgnoreCase;
+			_dictFilename = subOption.DictFilename;
+			_outFilename = subOption.OutFilename;
+			_isUseStdInput = subOption.IsUseStdInput;
+			_isVerbose = subOption.IsVerbose;
+			_inEncoding = TryGetEncoding(subOption.InEncoding);
+			_outEncoding = TryGetEncoding(subOption.OutEncoding);
 			_verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
 							$"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
 							$"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}";

@@ -1,5 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 using System;
+using PasswordListGenerator.Combinations;
 using PasswordListGenerator.Helps;
 using PasswordListGenerator.Substitutions;
 
@@ -16,7 +17,8 @@ namespace PasswordListGenerator
 			{
 				case "comb":
 					Logger.Debug("Comb verb");
-					throw new ArgumentException("It's not made yet");
+					var combOption = (CombineSubOption) instance;
+					return new Combine(combOption);
 
 				case "subs":
 					Logger.Debug("Subs verb creating...");

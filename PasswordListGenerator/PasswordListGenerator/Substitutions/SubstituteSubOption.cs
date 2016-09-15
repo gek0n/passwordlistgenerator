@@ -1,8 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
-using System.Text;
+
 using CommandLine;
-using CommandLine.Text;
-using PasswordListGenerator.Properties;
 
 namespace PasswordListGenerator.Substitutions
 {
@@ -28,17 +26,5 @@ namespace PasswordListGenerator.Substitutions
 
 		[Option('v', "verbose", Required = false, HelpText = "Show detailed substitute module configuration")]
 		public bool IsVerbose { get; set; }
-		
-		[HelpOption]
-		public string GetUsage()
-		{
-			var helpStringBuilder = new StringBuilder(HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current)));
-			helpStringBuilder.AppendLine();
-			helpStringBuilder.AppendLine(Resources.additionalUsage);
-			helpStringBuilder.Append(Resources.AdditionalSubsDictUsage);
-			helpStringBuilder.Append(Resources.AdditionalSubsMethodUsage);
-			helpStringBuilder.Append(Resources.AdditionalSubs_i_Usages);
-			return helpStringBuilder.ToString();
-		}
 	}
 }
