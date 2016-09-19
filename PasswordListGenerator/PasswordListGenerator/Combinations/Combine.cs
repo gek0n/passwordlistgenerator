@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PasswordListGenerator.Combinations
 {
@@ -14,17 +15,20 @@ namespace PasswordListGenerator.Combinations
 		private readonly string _keywordFilename;
 		private readonly string _combinationFilename;
 		private readonly string _delimiter;
+		private readonly string _suffix;
+		private readonly string _prefix;
 		private readonly bool _isRepetition;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
-		private List<List<int>> list;
 		public Combine(CombineSubOption subOption)
 		{
 			_maxLength = subOption.MaxLength;
 			_keywordFilename = subOption.KeywordFilename;
 			_combinationFilename = subOption.CombinationFilename;
 			_delimiter = subOption.Delimiter;
+			_suffix = subOption.Suffix;
+			_prefix = subOption.Prefix;
 			_isRepetition = subOption.IsRepetition;
 			_inEncoding = TryGetEncoding(subOption.InEncoding);
 			_outEncoding = TryGetEncoding(subOption.OutEncoding);
@@ -40,27 +44,27 @@ namespace PasswordListGenerator.Combinations
 		{
 			if (IsMaxLengthInvalid())
 			{
-				throw new CombineExceptions("Max length is invalid. See help for more information");
+				throw new MaxLengthNotInRangeCombineException("Max length is invalid. See help for more information");
 			}
 
 			if (IsKeywordFilenameInvalid())
 			{
-				throw new CombineExceptions("Keyword file is invalid");
+				throw new FilenameInvalidCombineException("Keyword file is invalid");
 			}
 			/*
 			if (IsCombinationFilenameInvalid())
 			{
-				throw new CombineExceptions("Combination file is invalid");
+				throw new FilenameInvalidCombineException("Combination file is invalid");
 			}
-
+			
 			if (IsDelimiterInvalid())
 			{
-				throw new CombineExceptions("Dilimiter is invalid");
+				throw new FilenameInvalidCombineException("Dilimiter is invalid");
 			}
 			*/
 		}
 
-		private bool IsMaxLengthInvalid() => !(_maxLength >= 2 && _maxLength <= 20);
+		private bool IsMaxLengthInvalid() => _maxLength < 2 || _maxLength > 20;
 
 		private bool IsKeywordFilenameInvalid() => string.IsNullOrEmpty(_keywordFilename) || !File.Exists(_keywordFilename);
 
@@ -92,11 +96,12 @@ namespace PasswordListGenerator.Combinations
 			foreach (var indexes in listOfIndexes)
 			{
 				var s = "";
-				foreach (var i in indexes)
+				for (int index = 0; index < indexes.Count; index++)
 				{
-					s += $"{words[i]}{_delimiter}";
+					var i = indexes[index];
+					s += index < indexes.Count -1 ? $"{words[i]}{_delimiter}" : $"{words[i]}";
 				}
-				result.Add(s.Trim(_delimiter.ToCharArray()));
+				result.Add((_prefix ?? "") + s + (_suffix ?? ""));
 			}
 			return result;
 		}
