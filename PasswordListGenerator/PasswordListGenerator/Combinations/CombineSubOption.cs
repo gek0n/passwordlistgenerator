@@ -7,7 +7,7 @@ namespace PasswordListGenerator.Combinations
 		[Option("max-length", Required = false, DefaultValue = (ushort)2, HelpText = "Number of words in one combination (between 2 and 20)")]
 		public ushort MaxLength { get; set; }
 
-		[Option("delimiter", Required = false, HelpText = "Set delimiter for words in combination")]
+		[Option("delimiter", Required = false, DefaultValue = " ", HelpText = "Set delimiter for words in combination")]
 		public string Delimiter { get; set; }
 
 		[Option('r', "repetition", Required = false, HelpText = "Set if every word can appear repeatedly")]

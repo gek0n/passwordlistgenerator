@@ -1,5 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
+using System.Linq;
 using System.Text;
 using CommandLine;
 using CommandLine.Text;
@@ -20,18 +21,26 @@ namespace PasswordListGenerator
 		[HelpVerbOption]
 		public string GetUsage(string verb)
 		{
+			StringBuilder helpStringBuilder;
 			switch (verb)
 			{
 				case "subs":
-					var helpStringBuilder = new StringBuilder(HelpText.AutoBuild(SubstituteVerb, current => HelpText.DefaultParsingErrorsHandler(SubstituteVerb, current)));
+					helpStringBuilder = new StringBuilder(HelpText.AutoBuild(SubstituteVerb, current => HelpText.DefaultParsingErrorsHandler(SubstituteVerb, current)));
 					helpStringBuilder.AppendLine();
 					helpStringBuilder.AppendLine(Resources.additionalUsage);
 					helpStringBuilder.Append(Resources.AdditionalSubsDictUsage);
 					helpStringBuilder.Append(Resources.AdditionalSubsMethodUsage);
 					helpStringBuilder.Append(Resources.AdditionalSubs_i_Usages);
+					if (SubstituteVerb.LastParserState?.Errors.Any() == true)
+					{
+						helpStringBuilder.Append("\r\n\r\nSOMETHING BAD!!!");
+					}
 					return helpStringBuilder.ToString();
 				case "comb":
-					return string.Empty;
+					helpStringBuilder = new StringBuilder(HelpText.AutoBuild(CombineVerb, current => HelpText.DefaultParsingErrorsHandler(CombineVerb, current)));
+//					helpStringBuilder.AppendLine();
+//					helpStringBuilder.AppendLine(Resources.additionalUsage);
+					return helpStringBuilder.ToString();
 				default:
 					return HelpText.AutoBuild(this, verb);
 			}

@@ -26,5 +26,8 @@ namespace PasswordListGenerator.Substitutions
 
 		[Option('v', "verbose", Required = false, HelpText = "Show detailed substitute module configuration")]
 		public bool IsVerbose { get; set; }
+
+		[ParserState]
+		public IParserState LastParserState { get; set; }
 	}
 }

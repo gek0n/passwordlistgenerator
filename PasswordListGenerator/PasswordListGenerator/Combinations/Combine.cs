@@ -76,38 +76,34 @@ namespace PasswordListGenerator.Combinations
 				content = stream.ReadToEnd();
 			}
 			var words = content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-			list = new List<List<int>>();
-			CombineIndexes(words.Length);
+
 			
+			var combinations = GetWordsCombinations(words);
+			foreach (var combination in combinations)
+			{
+				Console.WriteLine(combination);
+			}
 		}
 
-		private void CombineIndexes(int count)
+		private List<string> GetWordsCombinations(string[] words)
 		{
-			if (list.Count == 0)
+			var listOfIndexes = CombineIndexes(words.Length);
+			var result = new List<string>();
+			foreach (var indexes in listOfIndexes)
 			{
-				for (var i = 0; i < count; i++)
+				var s = "";
+				foreach (var i in indexes)
 				{
-					list.Add(new List<int>());
+					s += $"{words[i]}{_delimiter}";
 				}
+				result.Add(s.Trim(_delimiter.ToCharArray()));
 			}
-			/*
-			foreach (var element in list)
-			{
-				var buf = new List<List<int>>();
-				for(var i = 0; i < count; i++)
-				{
-					var buf2 = new List<int>(element);
-					if (!buf2.Contains(i) || _isRepetition)
-					{
-						buf2.Add(i);
-					}
-					buf.Add(buf2);
-				}
-				list.AddRange(buf);
-			}
-			*/
-			Console.WriteLine(count);
-			if(--count > 0) CombineIndexes(count);
+			return result;
+		}
+
+		private List<List<int>> CombineIndexes(int count)
+		{
+			return Enumerable.Repeat(Enumerable.Range(0, count), count).Combinations(_isRepetition).Select(t => t.ToList()).ToList();
 		}
 
 		private Encoding TryGetEncoding(string encoding)
