@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace PasswordListGenerator.Combinations
 {
 	public class Combine : IVerbOption
 	{
 		private static readonly Logger Logger = new Logger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+		private const ushort MIN_LENGTH_OF_ELEMENTS_IN_COMBINATION = 2;
+		private const ushort MAX_LENGTH_OF_ELEMENTS_IN_COMBINATION = 10;
 
 		private readonly ushort _maxLength;
 		private readonly string _keywordFilename;
@@ -64,7 +66,7 @@ namespace PasswordListGenerator.Combinations
 			*/
 		}
 
-		private bool IsMaxLengthInvalid() => _maxLength < 2 || _maxLength > 20;
+		private bool IsMaxLengthInvalid() => _maxLength < MIN_LENGTH_OF_ELEMENTS_IN_COMBINATION || _maxLength > MAX_LENGTH_OF_ELEMENTS_IN_COMBINATION;
 
 		private bool IsKeywordFilenameInvalid() => string.IsNullOrEmpty(_keywordFilename) || !File.Exists(_keywordFilename);
 
@@ -80,7 +82,10 @@ namespace PasswordListGenerator.Combinations
 				content = stream.ReadToEnd();
 			}
 			var words = content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
+			if ((_maxLength > words.Length) && !_isRepetition)
+			{
+				throw new MaxLengthNotInRangeCombineException("Max length is more than count of the words and repetitions not allowed. See help for more information");
+			}
 			
 			var combinations = GetWordsCombinations(words);
 			foreach (var combination in combinations)
@@ -91,7 +96,7 @@ namespace PasswordListGenerator.Combinations
 
 		private List<string> GetWordsCombinations(string[] words)
 		{
-			var listOfIndexes = CombineIndexes(words.Length);
+			var listOfIndexes = CombineIndexes(words.Length, _maxLength);
 			var result = new List<string>();
 			foreach (var indexes in listOfIndexes)
 			{
@@ -106,9 +111,13 @@ namespace PasswordListGenerator.Combinations
 			return result;
 		}
 
-		private List<List<int>> CombineIndexes(int count)
+		private List<List<int>> CombineIndexes(int count, int length)
 		{
-			return Enumerable.Repeat(Enumerable.Range(0, count), count).Combinations(_isRepetition).Select(t => t.ToList()).ToList();
+			return Enumerable
+					.Repeat(Enumerable.Range(0, count), length)
+					.Combinations(_isRepetition)
+					.Select(t => t.ToList())
+					.ToList();
 		}
 
 		private Encoding TryGetEncoding(string encoding)

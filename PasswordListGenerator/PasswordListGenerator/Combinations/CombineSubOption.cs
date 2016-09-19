@@ -4,7 +4,7 @@ namespace PasswordListGenerator.Combinations
 {
 	public class CombineSubOption : EncodingSubOption
 	{
-		[Option('m', "max-length", Required = false, DefaultValue = (ushort)2, HelpText = "Number of words in one combination (between 2 and 20)")]
+		[Option('m', "max-length", Required = false, DefaultValue = (ushort)2, HelpText = "Number of words in one combination (between 2 and 10)")]
 		public ushort MaxLength { get; set; }
 
 		[Option("delimiter", Required = false, DefaultValue = " ", HelpText = "Set delimiter for words in combination")]
