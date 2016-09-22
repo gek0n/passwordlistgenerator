@@ -41,8 +41,8 @@ namespace PasswordListGenerator.Substitutions
 			_outFilename = subOption.OutFilename;
 			_isUseStdInput = subOption.IsUseStdInput;
 			_isVerbose = subOption.IsVerbose;
-			_inEncoding = TryGetEncoding(subOption.InEncoding);
-			_outEncoding = TryGetEncoding(subOption.OutEncoding);
+			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
+			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
 			_verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
 							$"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
 							$"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}";
@@ -121,6 +121,8 @@ namespace PasswordListGenerator.Substitutions
 			return true;
 		}
 
+		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
+
 		private bool TryGetSubstitutionsForSourceWord()
 		{
 			var literals = SplitToLiterals(_sourceWord);
@@ -129,8 +131,8 @@ namespace PasswordListGenerator.Substitutions
 
 			try
 			{
-				var result = GetSubstitutions(substitutableWords, _alphabet);
-				ReturnResult(result);
+				var substitutions = GetSubstitutions(substitutableWords, _alphabet);
+				ReturnResult(substitutions);
 			}
 			catch (NotInTheDictionarySubstituteException exception)
 			{
@@ -144,7 +146,13 @@ namespace PasswordListGenerator.Substitutions
 			return true;
 		}
 
-		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
+		private string[] SplitToLiterals(string source)
+		{
+			return Regex
+				.Split(source, string.Empty)
+				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
+		}
 
 		private bool IsNothingToSubstitute() => string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput;
 
@@ -159,53 +167,24 @@ namespace PasswordListGenerator.Substitutions
 			return substitutableWords.Select(word => word.Aggregate((i, s) => i + s));
 		}
 
-		private void ReturnResult(IEnumerable<string> result)
+		private void ReturnResult(IEnumerable<string> collection)
 		{
 			try
 			{
 				if (!string.IsNullOrEmpty(_outFilename))
 				{
 					var stream = new StreamWriter(_outFilename, _isUseStdInput, _outEncoding);
-					WriteResultToStream(result, stream.WriteLine);
+					OutputHelper.WriteToStream(collection, stream.WriteLine);
 					stream.Close();
 				}
 				else
 				{
-					WriteResultToStream(result, Console.WriteLine);
+					OutputHelper.WriteToStream(collection, Console.WriteLine);
 				}
 			}
 			catch (IOException exception)
 			{
 				throw new IOSubstituteException(exception.Message);
-			}
-		}
-
-		private static void WriteResultToStream(IEnumerable<string> result, Action<string> writeLine)
-		{
-			foreach (var s in result)
-			{
-				writeLine(s);
-			}
-		}
-
-		private string[] SplitToLiterals(string source)
-		{
-			return Regex
-				.Split(source, string.Empty)
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-		}
-
-		private Encoding TryGetEncoding(string encoding)
-		{
-			try
-			{
-				return Encoding.GetEncoding(encoding);
-			}
-			catch (ArgumentException)
-			{
-				Logger.WarnAndPrint($"Can't using {encoding} encoding. Fallback to utf-8");
-				return Encoding.UTF8;
 			}
 		}
 

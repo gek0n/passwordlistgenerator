@@ -4,12 +4,12 @@ using System;
 
 namespace PasswordListGenerator.Combinations
 {
-	public class CombineException : VerbOptionException
+	public class IOCombineException : VerbOptionException
 	{
-		public CombineException(string msg) : base(msg)
+		public IOCombineException(string msg) : base(msg)
 		{ }
 
-		public CombineException(string msg, Exception innerException) : base(msg, innerException)
+		public IOCombineException(string msg, Exception innerException) : base(msg, innerException)
 		{ }
 	}
 	public class FilenameInvalidCombineException : VerbOptionException

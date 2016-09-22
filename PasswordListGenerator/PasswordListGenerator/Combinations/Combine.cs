@@ -10,12 +10,12 @@ namespace PasswordListGenerator.Combinations
 	{
 		private static readonly Logger Logger = new Logger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private const ushort MIN_LENGTH_OF_ELEMENTS_IN_COMBINATION = 2;
-		private const ushort MAX_LENGTH_OF_ELEMENTS_IN_COMBINATION = 10;
+		private const ushort MinLengthOfElementsInCombination = 2;
+		private const ushort MaxLengthOfElementsInCombination = 10;
 
 		private readonly ushort _maxLength;
-		private readonly string _keywordFilename;
-		private readonly string _combinationFilename;
+		private readonly string _inFilename;
+		private readonly string _outFilename;
 		private readonly string _delimiter;
 		private readonly string _suffix;
 		private readonly string _prefix;
@@ -26,20 +26,31 @@ namespace PasswordListGenerator.Combinations
 		public Combine(CombineSubOption subOption)
 		{
 			_maxLength = subOption.MaxLength;
-			_keywordFilename = subOption.KeywordFilename;
-			_combinationFilename = subOption.CombinationFilename;
+			_inFilename = subOption.InFilename;
+			_outFilename = subOption.OutFilename;
 			_delimiter = subOption.Delimiter;
 			_suffix = subOption.Suffix;
 			_prefix = subOption.Prefix;
 			_isRepetition = subOption.IsRepetition;
-			_inEncoding = TryGetEncoding(subOption.InEncoding);
-			_outEncoding = TryGetEncoding(subOption.OutEncoding);
+			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
+			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
+
+			Logger.Debug($"maxLength = {_maxLength}" + 
+						$"keywordFilename = {_inFilename}" +
+						$"combinationFilename = {_outFilename}" +
+						$"delimiter = {_delimiter}" +
+						$"suffix = {_suffix}" +
+						$"prefix = {_prefix}" +
+						$"isRepetition = {_isRepetition}" +
+						$"inEncoding = {_inEncoding}" +
+						$"outEncoding = {_outEncoding}");
 		}
 
 		public void Process()
 		{
 			CheckParameters();
-			GetCombinations();
+			var combinations = GetCombinations();
+			OutputToFileOrConsole(combinations);
 		}
 
 		private void CheckParameters()
@@ -49,48 +60,39 @@ namespace PasswordListGenerator.Combinations
 				throw new MaxLengthNotInRangeCombineException("Max length is invalid. See help for more information");
 			}
 
-			if (IsKeywordFilenameInvalid())
+			if (IsInFilenameInvalid())
 			{
 				throw new FilenameInvalidCombineException("Keyword file is invalid");
 			}
-			/*
-			if (IsCombinationFilenameInvalid())
-			{
-				throw new FilenameInvalidCombineException("Combination file is invalid");
-			}
-			
-			if (IsDelimiterInvalid())
-			{
-				throw new FilenameInvalidCombineException("Dilimiter is invalid");
-			}
-			*/
 		}
 
-		private bool IsMaxLengthInvalid() => _maxLength < MIN_LENGTH_OF_ELEMENTS_IN_COMBINATION || _maxLength > MAX_LENGTH_OF_ELEMENTS_IN_COMBINATION;
+		private bool IsMaxLengthInvalid() => _maxLength < MinLengthOfElementsInCombination || _maxLength > MaxLengthOfElementsInCombination;
 
-		private bool IsKeywordFilenameInvalid() => string.IsNullOrEmpty(_keywordFilename) || !File.Exists(_keywordFilename);
+		private bool IsInFilenameInvalid() => string.IsNullOrEmpty(_inFilename) || !File.Exists(_inFilename);
 
-		private bool IsCombinationFilenameInvalid() => string.IsNullOrEmpty(_combinationFilename);
-
-		private bool IsDelimiterInvalid() => string.IsNullOrEmpty(_delimiter);
-
-		private void GetCombinations()
+		private List<string> GetCombinations()
 		{
-			string content;
-			using (var stream = new StreamReader(_keywordFilename, _inEncoding))
-			{
-				content = stream.ReadToEnd();
-			}
-			var words = content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+			var content = GetInFileContent();
+			var words = SplitToWords(content);
 			if ((_maxLength > words.Length) && !_isRepetition)
 			{
 				throw new MaxLengthNotInRangeCombineException("Max length is more than count of the words and repetitions not allowed. See help for more information");
 			}
 			
 			var combinations = GetWordsCombinations(words);
-			foreach (var combination in combinations)
+			return combinations;
+		}
+
+		private static string[] SplitToWords(string content)
+		{
+			return content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		private string GetInFileContent()
+		{
+			using (var stream = new StreamReader(_inFilename, _inEncoding))
 			{
-				Console.WriteLine(combination);
+				return stream.ReadToEnd();
 			}
 		}
 
@@ -120,16 +122,24 @@ namespace PasswordListGenerator.Combinations
 					.ToList();
 		}
 
-		private Encoding TryGetEncoding(string encoding)
+		private void OutputToFileOrConsole(IEnumerable<string> result)
 		{
 			try
 			{
-				return Encoding.GetEncoding(encoding);
+				if (!string.IsNullOrEmpty(_outFilename))
+				{
+					var stream = new StreamWriter(_outFilename, false, _outEncoding);
+					OutputHelper.WriteToStream(result, stream.WriteLine);
+					stream.Close();
+				}
+				else
+				{
+					OutputHelper.WriteToStream(result, Console.WriteLine);
+				}
 			}
-			catch (ArgumentException)
+			catch (IOException exception)
 			{
-				Logger.WarnAndPrint($"Can't using {encoding} encoding. Fallback to utf-8");
-				return Encoding.UTF8;
+				throw new IOCombineException(exception.Message);
 			}
 		}
 	}

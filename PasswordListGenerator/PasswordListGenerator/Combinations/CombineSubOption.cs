@@ -20,9 +20,9 @@ namespace PasswordListGenerator.Combinations
 		public bool IsRepetition { get; set; }
 
 		[Option('i', "in-file", Required = true, HelpText = "File with list of keywords to make combination")]
-		public string KeywordFilename { get; set; }
+		public string InFilename { get; set; }
 
 		[Option('o', "out-file", Required = false, HelpText = "File to write output combinations")]
-		public string CombinationFilename { get; set; }
+		public string OutFilename { get; set; }
 	}
 }
