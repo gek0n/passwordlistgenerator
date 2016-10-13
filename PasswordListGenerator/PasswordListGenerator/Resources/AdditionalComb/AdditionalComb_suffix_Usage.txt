@@ -1,0 +1,21 @@
+--suffix
+		Usi this option if you want specify suffix for every combined string. By default it has not value.
+		Example:
+			PasswordListGenerator comb -i textFile.txt --suffix a
+
+		<-*textFile content*->
+			0
+			1
+			2
+
+		Output:
+			0 1a
+			0 2a
+			1 0a
+			1 2a
+			2 0a
+			2 1a
+
+		If you want to use not alphanumeric symbols as suffix, then you better should use "" (double quotes) to specify the symbols.
+		Example:
+			PasswordListGenerator comb -i textFile.txt --suffix="<|>"

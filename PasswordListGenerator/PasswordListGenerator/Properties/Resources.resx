@@ -117,19 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="AdditionalSubsDictUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubs_d_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="AdditionalSubsMethodUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubs_m_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="AdditionalSubs_i_Usages" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AdditionalSubs_i_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
   <data name="additionalUsage" xml:space="preserve">
     <value>Additional information for options:</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="EnglishLeetDict" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EnglishLeetDict.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
@@ -138,5 +129,29 @@
   </data>
   <data name="LICENSE" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LICENSE.md;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="AdditionalComb_delimiter_Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalComb\AdditionalComb_delimiter_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalComb_m_Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalComb\AdditionalComb_m_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalComb_prefix_Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalComb\AdditionalComb_prefix_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalComb_r_Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalComb\AdditionalComb_r_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalComb_suffix_Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalComb\AdditionalComb_suffix_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalSubsDictUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubs\AdditionalSubs_d_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalSubsMethodUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubs\AdditionalSubs_m_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  </data>
+  <data name="AdditionalSubs_i_Usages" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AdditionalSubs\AdditionalSubs_i_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
 </root>

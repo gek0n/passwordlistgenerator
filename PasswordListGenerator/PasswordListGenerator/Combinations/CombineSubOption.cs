@@ -24,5 +24,8 @@ namespace PasswordListGenerator.Combinations
 
 		[Option('o', "out-file", Required = false, HelpText = "File to write output combinations")]
 		public string OutFilename { get; set; }
-	}
+
+        [ParserState]
+        public IParserState LastParserState { get; set; }
+    }
 }

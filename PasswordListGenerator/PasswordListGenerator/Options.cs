@@ -21,7 +21,7 @@ namespace PasswordListGenerator
 		[HelpVerbOption]
 		public string GetUsage(string verb)
 		{
-			StringBuilder helpStringBuilder;
+            StringBuilder helpStringBuilder;
 			switch (verb)
 			{
 				case "subs":
@@ -38,9 +38,19 @@ namespace PasswordListGenerator
 					return helpStringBuilder.ToString();
 				case "comb":
 					helpStringBuilder = new StringBuilder(HelpText.AutoBuild(CombineVerb, current => HelpText.DefaultParsingErrorsHandler(CombineVerb, current)));
-//					helpStringBuilder.AppendLine();
-//					helpStringBuilder.AppendLine(Resources.additionalUsage);
-					return helpStringBuilder.ToString();
+					helpStringBuilder.AppendLine();
+					helpStringBuilder.AppendLine(Resources.additionalUsage);
+			        helpStringBuilder.Append(Resources.AdditionalComb_m_Usage);
+                    helpStringBuilder.Append(Resources.AdditionalComb_delimiter_Usage);
+                    helpStringBuilder.Append(Resources.AdditionalComb_prefix_Usage);
+                    helpStringBuilder.Append(Resources.AdditionalComb_suffix_Usage);
+                    helpStringBuilder.Append(Resources.AdditionalComb_r_Usage);
+                    if (CombineVerb.LastParserState?.Errors.Any() == true)
+                    {
+                        // Случается, когда не указаны обязательные параметры!
+                        helpStringBuilder.Append("\r\n\r\nSOMETHING BAD!!!");
+                    }
+                    return helpStringBuilder.ToString();
 				default:
 					return HelpText.AutoBuild(this, verb);
 			}
