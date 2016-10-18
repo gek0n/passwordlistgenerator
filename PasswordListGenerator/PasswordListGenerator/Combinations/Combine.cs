@@ -21,22 +21,34 @@ namespace PasswordListGenerator.Combinations
 		private readonly string _suffix;
 		private readonly string _prefix;
 		private readonly bool _isRepetition;
+	    private readonly bool _isVerbose;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
-		public Combine(CombineSubOption subOption)
-		{
-			_maxLength = subOption.MaxLength;
-			_inFilename = subOption.InFilename;
-			_outFilename = subOption.OutFilename;
-			_delimiter = subOption.Delimiter;
-			_suffix = subOption.Suffix;
-			_prefix = subOption.Prefix;
-			_isRepetition = subOption.IsRepetition;
-			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
-			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
+        private readonly string _verboseMsg;
 
-			Logger.Debug($"maxLength = {_maxLength}" + 
+        public Combine(CombineSubOption combOption)
+		{
+            _verboseMsg = "";
+            _maxLength = combOption.MaxLength;
+			_inFilename = combOption.InFilename;
+			_outFilename = combOption.OutFilename;
+			_delimiter = combOption.Delimiter;
+			_suffix = combOption.Suffix;
+			_prefix = combOption.Prefix;
+			_isRepetition = combOption.IsRepetition;
+		    _isVerbose = combOption.IsVerbose;
+			_inEncoding = EncodingHelper.TryGetEncoding(combOption.InEncoding);
+			_outEncoding = EncodingHelper.TryGetEncoding(combOption.OutEncoding);
+            _verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
+                            $"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
+                            $"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}" +
+                            $"[SUFFIX]: {_suffix}{Environment.NewLine}" +
+                            $"[PREFIX]: {_prefix}{Environment.NewLine}" +
+                            $"[DELIMITER]: {_delimiter}{Environment.NewLine}" +
+                            $"[MAX LENGTH]: {_maxLength}{Environment.NewLine}";
+
+            Logger.Debug($"maxLength = {_maxLength}" + 
 						$"keywordFilename = {_inFilename}" +
 						$"combinationFilename = {_outFilename}" +
 						$"delimiter = {_delimiter}" +
@@ -49,7 +61,11 @@ namespace PasswordListGenerator.Combinations
 
 		public void Process()
 		{
-			CheckParameters();
+            if (_isVerbose)
+            {
+                Console.WriteLine(_verboseMsg);
+            }
+            CheckParameters();
 			var combinations = GetCombinations();
 			OutputToFileOrConsole(combinations);
 		}
