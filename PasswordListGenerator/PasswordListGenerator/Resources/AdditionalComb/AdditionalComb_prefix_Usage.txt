@@ -1,5 +1,6 @@
 --prefix
-		Usi this option if you want specify prefix for every combined string. By default it has not value.
+		Usi this option if you want specify prefix for every combined string. 
+		By default it has not value.
 		Example:
 			PasswordListGenerator comb -i textFile.txt --prefix a
 
@@ -16,6 +17,7 @@
 			a2 0
 			a2 1
 
-		If you want to use not alphanumeric symbols as prefix, then you better should use "" (double quotes) to specify the symbols.
+		If you want to use not alphanumeric symbols as prefix, then you better 
+		should use "" (double quotes) to specify the symbols.
 		Example:
 			PasswordListGenerator comb -i textFile.txt --prefix="<|>"

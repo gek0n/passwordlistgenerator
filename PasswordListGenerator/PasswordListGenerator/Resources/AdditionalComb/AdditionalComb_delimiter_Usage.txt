@@ -1,5 +1,6 @@
 --delimiter
-		Use this option to specify delimiter, which should be paste between elements in combined string. By default it has <space> value.
+		Use this option to specify delimiter, which should be paste between 
+		elements in combined string. By default it has <space> value.
 		Example:
 			PasswordListGenerator comb -i textFile.txt --delimiter a
 
@@ -16,6 +17,7 @@
 			2a0
 			2a1
 
-		If you want to use not alphanumeric symbols as delimiter, then you better should use "" (double quotes) to specify the symbols.
+		If you want to use not alphanumeric symbols as delimiter, then you 
+		better should use "" (double quotes) to specify the symbols.
 		Example:
 			PasswordListGenerator comb -i textFile.txt --delimiter="<|>"

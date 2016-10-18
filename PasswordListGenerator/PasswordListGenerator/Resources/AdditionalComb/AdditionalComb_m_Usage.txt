@@ -1,5 +1,6 @@
 -m, --max-length
-		Use this options to specify maximum number of source words in result combinations. It has 2 by default.
+		Use this options to specify maximum number of source words in result 
+		combinations. It has 2 by default.
 		Example:
 			PasswordListGenerator comb -i textFile.txt -m 3
 
@@ -16,7 +17,8 @@
 			2 0 1
 			2 1 0
 
-		If set max-length value more than count of source words, then you need to set "repetitions" option, else error will be occured.
+		If set max-length value more than count of source words, then you need 
+		to set "repetitions" option, else error will be occured.
 
 		Example:
 			PasswordListGenerator comb -i textFile.txt -m 4

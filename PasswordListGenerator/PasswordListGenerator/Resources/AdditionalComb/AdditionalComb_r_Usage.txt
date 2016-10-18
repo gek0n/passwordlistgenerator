@@ -1,5 +1,6 @@
 -r, --repetition
-		Use this option if you want to include variants of combination, that contains repetitions of source symbols.
+		Use this option if you want to include variants of combination, that 
+		contains repetitions of source symbols.
 		Example:
 			PasswordListGenerator comb -i textFile.txt -r
 
