@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -72,7 +73,7 @@ namespace PasswordListGenerator.Combinations
 
 		private List<string> GetCombinations()
 		{
-			var content = GetInFileContent();
+			var content = GetContentFromFile();
 			var words = SplitToWords(content);
 			if ((_maxLength > words.Length) && !_isRepetition)
 			{
@@ -88,7 +89,7 @@ namespace PasswordListGenerator.Combinations
 			return content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
-		private string GetInFileContent()
+		private string GetContentFromFile()
 		{
 			using (var stream = new StreamReader(_inFilename, _inEncoding))
 			{
@@ -96,24 +97,16 @@ namespace PasswordListGenerator.Combinations
 			}
 		}
 
-		private List<string> GetWordsCombinations(string[] words)
+		private List<string> GetWordsCombinations(IReadOnlyList<string> words)
 		{
-			var listOfIndexes = CombineIndexes(words.Length, _maxLength);
-			var result = new List<string>();
-			foreach (var indexes in listOfIndexes)
-			{
-				var s = "";
-				for (int index = 0; index < indexes.Count; index++)
-				{
-					var i = indexes[index];
-					s += index < indexes.Count -1 ? $"{words[i]}{_delimiter}" : $"{words[i]}";
-				}
-				result.Add((_prefix ?? "") + s + (_suffix ?? ""));
-			}
-			return result;
+			var listOfIndexes = CombineIndexes(words.Count, _maxLength);
+		    return listOfIndexes
+                .Select(indexes => GenerateOneCombination(indexes, words))
+                .Select(SurroundAffixes)
+                .ToList();
 		}
 
-		private List<List<int>> CombineIndexes(int count, int length)
+	    private List<List<int>> CombineIndexes(int count, int length)
 		{
 			return Enumerable
 					.Repeat(Enumerable.Range(0, count), length)
@@ -122,7 +115,23 @@ namespace PasswordListGenerator.Combinations
 					.ToList();
 		}
 
-		private void OutputToFileOrConsole(IEnumerable<string> result)
+	    private string GenerateOneCombination(IReadOnlyList<int> indexes, IReadOnlyList<string> words)
+	    {
+            var result = "";
+            for (var index = 0; index < indexes.Count; index++)
+            {
+                var i = indexes[index];
+                result += index < indexes.Count - 1 ? $"{words[i]}{_delimiter}" : $"{words[i]}";
+            }
+	        return result;
+	    }
+
+	    private string SurroundAffixes(string oneCombination)
+	    {
+	        return (_prefix ?? "") + oneCombination + (_suffix ?? "");
+	    }
+
+	    private void OutputToFileOrConsole(IEnumerable<string> result)
 		{
 			try
 			{
