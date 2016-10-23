@@ -23,7 +23,7 @@
 
 using NUnitLite;
 
-namespace NUnitLite.Tests
+namespace PasswordListGeneratorTest
 {
     public class Program
     {

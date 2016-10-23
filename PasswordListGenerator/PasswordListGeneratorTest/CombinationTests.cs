@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
+using System;
 using System.Collections;
 using System.IO;
 using CommandLine;
@@ -25,9 +26,9 @@ namespace PasswordListGeneratorTest
 			var file = File.Create(EmptyFilename);
 			file.Close();
 
-			File.WriteAllText(CorruptFilename, $"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
-			File.WriteAllText(NormalFilename1, $"0{Environment.NewLine}1");
-			File.WriteAllText(NormalFilename2, $"cat{Environment.NewLine}dog{Environment.NewLine}empty{Environment.NewLine}frog{Environment.NewLine}lazy");
+			File.WriteAllText(CorruptFilename, $@"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
+			File.WriteAllText(NormalFilename1, $@"0{Environment.NewLine}1");
+			File.WriteAllText(NormalFilename2, $@"cat{Environment.NewLine}dog{Environment.NewLine}empty{Environment.NewLine}frog{Environment.NewLine}lazy");
 		}
 
 		[OneTimeTearDown]

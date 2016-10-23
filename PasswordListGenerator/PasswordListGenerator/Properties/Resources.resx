@@ -154,4 +154,22 @@
   <data name="AdditionalSubs_i_Usages" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\AdditionalSubs\AdditionalSubs_i_Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
+  <data name="inFilenameIsInvalid" xml:space="preserve">
+    <value>In filename is invalid</value>
+  </data>
+  <data name="maxLengthNotInRangeCombineExceptionMessage" xml:space="preserve">
+    <value>Max length is invalid</value>
+  </data>
+  <data name="notEnoughEntriesCombineExceptionMessage" xml:space="preserve">
+    <value>It must be more than 1 not empty entries splitted with {new line} in the file</value>
+  </data>
+  <data name="outFilenameIsInvalid" xml:space="preserve">
+    <value>Out filename is invalid</value>
+  </data>
+  <data name="repetitionDisallowedCombineExceptionMessage" xml:space="preserve">
+    <value>Max length is more than count of the words and repetitions not allowed</value>
+  </data>
+  <data name="seeHelpForMoreInfo" xml:space="preserve">
+    <value>See help for more information</value>
+  </data>
 </root>

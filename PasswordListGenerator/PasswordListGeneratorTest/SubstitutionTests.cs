@@ -20,7 +20,7 @@ namespace PasswordListGeneratorTest
 		[SetUp]
 		public void Init()
 		{
-			Thread.Sleep(2000); //Try to bypass license checker for NewthonJson (can't run more then 10 tests once)
+			Thread.Sleep(2000);
 		}
 
 		#region SourceWordTests

@@ -30,6 +30,15 @@ namespace PasswordListGenerator.Combinations
 		{ }
 	}
 
+	public class RepetitionDisallowedCombineException : VerbOptionException
+	{
+		public RepetitionDisallowedCombineException(string msg) : base(msg)
+		{ }
+
+		public RepetitionDisallowedCombineException(string msg, Exception innerException) : base(msg, innerException)
+		{ }
+	}
+
 	public class FileIsEmptyCombineException : VerbOptionException
 	{
 		public FileIsEmptyCombineException(string msg) : base(msg)

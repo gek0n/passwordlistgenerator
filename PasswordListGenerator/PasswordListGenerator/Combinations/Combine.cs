@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using PasswordListGenerator.Properties;
 
 namespace PasswordListGenerator.Combinations
 {
@@ -75,12 +76,12 @@ namespace PasswordListGenerator.Combinations
 		{
 			if (IsMaxLengthInvalid())
 			{
-				throw new MaxLengthNotInRangeCombineException("Max length is invalid. See help for more information");
+				throw new MaxLengthNotInRangeCombineException(Resources.maxLengthNotInRangeCombineExceptionMessage);
 			}
 
 			if (IsFilenameInvalid(_inFilename) )
 			{
-				throw new FilenameInvalidCombineException("Keyword file is invalid");
+				throw new FilenameInvalidCombineException(Resources.inFilenameIsInvalid);
 			}
 		}
 
@@ -103,17 +104,17 @@ namespace PasswordListGenerator.Combinations
 			var content = GetContentFromFile();
 			if (string.IsNullOrEmpty(content))
 			{
-				throw new FileIsEmptyCombineException("The file is empty. Please specify another file");
+				throw new FileIsEmptyCombineException($"The {_inFilename} file is empty. Please specify another file");
 			}
 			var words = SplitToWords(content);
 			if (words.Length < 2)
 			{
-				throw new NotEnoughEntriesCombineException("It must be more than 1 not empty entries splitted with {new line} in the file");
+				throw new NotEnoughEntriesCombineException(Resources.notEnoughEntriesCombineExceptionMessage);
 			}
 
 			if ((_maxLength > words.Length) && !_isRepetition)
 			{
-				throw new MaxLengthNotInRangeCombineException("Max length is more than count of the words and repetitions not allowed. See help for more information");
+				throw new RepetitionDisallowedCombineException(Resources.repetitionDisallowedCombineExceptionMessage);
 			}
 
 			var combinations = GetWordsCombinations(words);
@@ -175,7 +176,7 @@ namespace PasswordListGenerator.Combinations
 				{
 					if (!IsSystemCorrectFilename(_outFilename))
 					{
-						throw new FilenameInvalidCombineException("Output file is invalid");
+						throw new FilenameInvalidCombineException(Resources.outFilenameIsInvalid);
 					}
 					var stream = new StreamWriter(_outFilename, false, _outEncoding);
 					OutputHelper.WriteToStream(result, stream.WriteLine);
