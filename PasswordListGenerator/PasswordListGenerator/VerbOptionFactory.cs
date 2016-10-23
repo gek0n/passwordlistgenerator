@@ -17,12 +17,12 @@ namespace PasswordListGenerator
 			{
 				case "comb":
 					Logger.Debug("Comb verb");
-					var combOption = (CombineSubOption) instance;
+					var combOption = (CombineSubOption)instance;
 					return new Combine(combOption);
 
 				case "subs":
 					Logger.Debug("Subs verb creating...");
-					var subsOption = (SubstituteSubOption) instance;
+					var subsOption = (SubstituteSubOption)instance;
 					return new Substitution(subsOption);
 
 				default:

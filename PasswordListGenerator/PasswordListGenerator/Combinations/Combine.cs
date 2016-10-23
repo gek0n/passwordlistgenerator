@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PasswordListGenerator.Combinations
 {
@@ -21,34 +22,34 @@ namespace PasswordListGenerator.Combinations
 		private readonly string _suffix;
 		private readonly string _prefix;
 		private readonly bool _isRepetition;
-	    private readonly bool _isVerbose;
+		private readonly bool _isVerbose;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
 
-        private readonly string _verboseMsg;
+		private readonly string _verboseMsg;
 
-        public Combine(CombineSubOption combOption)
+		public Combine(CombineSubOption combOption)
 		{
-            _verboseMsg = "";
-            _maxLength = combOption.MaxLength;
+			_verboseMsg = "";
+			_maxLength = combOption.MaxLength;
 			_inFilename = combOption.InFilename;
 			_outFilename = combOption.OutFilename;
 			_delimiter = combOption.Delimiter;
 			_suffix = combOption.Suffix;
 			_prefix = combOption.Prefix;
 			_isRepetition = combOption.IsRepetition;
-		    _isVerbose = combOption.IsVerbose;
+			_isVerbose = combOption.IsVerbose;
 			_inEncoding = EncodingHelper.TryGetEncoding(combOption.InEncoding);
 			_outEncoding = EncodingHelper.TryGetEncoding(combOption.OutEncoding);
-            _verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
-                            $"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
-                            $"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}" +
-                            $"[SUFFIX]: {_suffix}{Environment.NewLine}" +
-                            $"[PREFIX]: {_prefix}{Environment.NewLine}" +
-                            $"[DELIMITER]: {_delimiter}{Environment.NewLine}" +
-                            $"[MAX LENGTH]: {_maxLength}{Environment.NewLine}";
+			_verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
+							$"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
+							$"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}" +
+							$"[SUFFIX]: {_suffix}{Environment.NewLine}" +
+							$"[PREFIX]: {_prefix}{Environment.NewLine}" +
+							$"[DELIMITER]: {_delimiter}{Environment.NewLine}" +
+							$"[MAX LENGTH]: {_maxLength}{Environment.NewLine}";
 
-            Logger.Debug($"maxLength = {_maxLength}" + 
+			Logger.Debug($"maxLength = {_maxLength}" +
 						$"keywordFilename = {_inFilename}" +
 						$"combinationFilename = {_outFilename}" +
 						$"delimiter = {_delimiter}" +
@@ -61,11 +62,11 @@ namespace PasswordListGenerator.Combinations
 
 		public void Process()
 		{
-            if (_isVerbose)
-            {
-                Console.WriteLine(_verboseMsg);
-            }
-            CheckParameters();
+			if (_isVerbose)
+			{
+				Console.WriteLine(_verboseMsg);
+			}
+			CheckParameters();
 			var combinations = GetCombinations();
 			OutputToFileOrConsole(combinations);
 		}
@@ -77,32 +78,51 @@ namespace PasswordListGenerator.Combinations
 				throw new MaxLengthNotInRangeCombineException("Max length is invalid. See help for more information");
 			}
 
-			if (IsInFilenameInvalid())
+			if (IsFilenameInvalid(_inFilename) )
 			{
 				throw new FilenameInvalidCombineException("Keyword file is invalid");
 			}
 		}
 
-		private bool IsMaxLengthInvalid() => _maxLength < MinLengthOfElementsInCombination || _maxLength > MaxLengthOfElementsInCombination;
+		private bool IsMaxLengthInvalid() => _maxLength < MinLengthOfElementsInCombination
+											|| _maxLength > MaxLengthOfElementsInCombination;
 
-		private bool IsInFilenameInvalid() => string.IsNullOrEmpty(_inFilename) || !File.Exists(_inFilename);
+		private static bool IsFilenameInvalid(string filename) => string.IsNullOrEmpty(filename)
+																	|| !File.Exists(filename) 
+																	|| !IsSystemCorrectFilename(filename);
+
+		private static bool IsSystemCorrectFilename(string testName)
+		{
+			var containsABadCharacter = new Regex("["
+				  + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]");
+			return !containsABadCharacter.IsMatch(testName);
+		}
 
 		private List<string> GetCombinations()
 		{
 			var content = GetContentFromFile();
+			if (string.IsNullOrEmpty(content))
+			{
+				throw new FileIsEmptyCombineException("The file is empty. Please specify another file");
+			}
 			var words = SplitToWords(content);
+			if (words.Length < 2)
+			{
+				throw new NotEnoughEntriesCombineException("It must be more than 1 not empty entries splitted with {new line} in the file");
+			}
+
 			if ((_maxLength > words.Length) && !_isRepetition)
 			{
 				throw new MaxLengthNotInRangeCombineException("Max length is more than count of the words and repetitions not allowed. See help for more information");
 			}
-			
+
 			var combinations = GetWordsCombinations(words);
 			return combinations;
 		}
 
 		private static string[] SplitToWords(string content)
 		{
-			return content.Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+			return content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		private string GetContentFromFile()
@@ -116,13 +136,13 @@ namespace PasswordListGenerator.Combinations
 		private List<string> GetWordsCombinations(IReadOnlyList<string> words)
 		{
 			var listOfIndexes = CombineIndexes(words.Count, _maxLength);
-		    return listOfIndexes
-                .Select(indexes => GenerateOneCombination(indexes, words))
-                .Select(SurroundAffixes)
-                .ToList();
+			return listOfIndexes
+				.Select(indexes => GenerateOneCombination(indexes, words))
+				.Select(SurroundAffixes)
+				.ToList();
 		}
 
-	    private List<List<int>> CombineIndexes(int count, int length)
+		private List<List<int>> CombineIndexes(int count, int length)
 		{
 			return Enumerable
 					.Repeat(Enumerable.Range(0, count), length)
@@ -131,28 +151,32 @@ namespace PasswordListGenerator.Combinations
 					.ToList();
 		}
 
-	    private string GenerateOneCombination(IReadOnlyList<int> indexes, IReadOnlyList<string> words)
-	    {
-            var result = "";
-            for (var index = 0; index < indexes.Count; index++)
-            {
-                var i = indexes[index];
-                result += index < indexes.Count - 1 ? $"{words[i]}{_delimiter}" : $"{words[i]}";
-            }
-	        return result;
-	    }
+		private string GenerateOneCombination(IReadOnlyList<int> indexes, IReadOnlyList<string> words)
+		{
+			var result = "";
+			for (var index = 0; index < indexes.Count; index++)
+			{
+				var i = indexes[index];
+				result += index < indexes.Count - 1 ? $"{words[i]}{_delimiter}" : $"{words[i]}";
+			}
+			return result;
+		}
 
-	    private string SurroundAffixes(string oneCombination)
-	    {
-	        return (_prefix ?? "") + oneCombination + (_suffix ?? "");
-	    }
+		private string SurroundAffixes(string oneCombination)
+		{
+			return (_prefix ?? "") + oneCombination + (_suffix ?? "");
+		}
 
-	    private void OutputToFileOrConsole(IEnumerable<string> result)
+		private void OutputToFileOrConsole(IEnumerable<string> result)
 		{
 			try
 			{
 				if (!string.IsNullOrEmpty(_outFilename))
 				{
+					if (!IsSystemCorrectFilename(_outFilename))
+					{
+						throw new FilenameInvalidCombineException("Output file is invalid");
+					}
 					var stream = new StreamWriter(_outFilename, false, _outEncoding);
 					OutputHelper.WriteToStream(result, stream.WriteLine);
 					stream.Close();

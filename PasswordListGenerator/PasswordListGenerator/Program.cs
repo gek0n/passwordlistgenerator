@@ -13,24 +13,24 @@ namespace PasswordListGenerator
 		private static void Main(string[] args)
 		{
 			Console.OutputEncoding = Encoding.UTF8;
-		    try
-		    {
-		        var verbOption = CreateVerbOption(args);
-		        if (verbOption == null)
-		        {
-		            Logger.ErrorAndPrint("Can't create command handler");
-		            return;
-		        }
-		        verbOption.Process();
-		    }
-		    catch (ArgumentException e)
-		    {
-		        Logger.Error(e.Message);
-		    }
-		    catch (VerbOptionException exception)
-		    {
-		        Logger.ErrorAndPrint(exception.Message);
-		    }
+			try
+			{
+				var verbOption = CreateVerbOption(args);
+				if (verbOption == null)
+				{
+					Logger.ErrorAndPrint("Can't create command handler");
+					return;
+				}
+				verbOption.Process();
+			}
+			catch (ArgumentException e)
+			{
+				Logger.Error(e.Message);
+			}
+			catch (VerbOptionException exception)
+			{
+				Logger.ErrorAndPrint(exception.Message);
+			}
 		}
 
 		private static IVerbOption CreateVerbOption(string[] args)
@@ -39,8 +39,8 @@ namespace PasswordListGenerator
 			if (!Parser
 				.Default
 				.ParseArguments(
-					args, 
-					new Options(), 
+					args,
+					new Options(),
 					(verbName, verbInstance) => verbOption = VerbOptionFactory.Construct(verbName, verbInstance)
 				)
 			)

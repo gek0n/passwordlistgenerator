@@ -27,10 +27,10 @@ namespace PasswordListGenerator.Combinations
 		[Option('o', "out-file", Required = false, HelpText = "File to write output combinations")]
 		public string OutFilename { get; set; }
 
-        [Option('v', "verbose", Required = false, HelpText = "Show detailed combination module configuration")]
-        public bool IsVerbose { get; set; }
+		[Option('v', "verbose", Required = false, HelpText = "Show detailed combination module configuration")]
+		public bool IsVerbose { get; set; }
 
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-    }
+		[ParserState]
+		public IParserState LastParserState { get; set; }
+	}
 }

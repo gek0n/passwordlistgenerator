@@ -29,4 +29,22 @@ namespace PasswordListGenerator.Combinations
 		public MaxLengthNotInRangeCombineException(string msg, Exception innerException) : base(msg, innerException)
 		{ }
 	}
+
+	public class FileIsEmptyCombineException : VerbOptionException
+	{
+		public FileIsEmptyCombineException(string msg) : base(msg)
+		{ }
+
+		public FileIsEmptyCombineException(string msg, Exception innerException) : base(msg, innerException)
+		{ }
+	}
+
+	public class NotEnoughEntriesCombineException : VerbOptionException
+	{
+		public NotEnoughEntriesCombineException(string msg) : base(msg)
+		{ }
+
+		public NotEnoughEntriesCombineException(string msg, Exception innerException) : base(msg, innerException)
+		{ }
+	}
 }
