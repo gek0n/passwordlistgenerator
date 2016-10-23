@@ -403,6 +403,15 @@ namespace PasswordListGenerator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dictionary file is not specified. Default dictionary will be used.
+        /// </summary>
+        internal static string loggerWarnSubstituteDictionaryNotSpecifiedMessage {
+            get {
+                return ResourceManager.GetString("loggerWarnSubstituteDictionaryNotSpecifiedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Max length is invalid.
         /// </summary>
         internal static string maxLengthNotInRangeCombineExceptionMessage {
@@ -444,6 +453,24 @@ namespace PasswordListGenerator.Properties {
         internal static string seeHelpForMoreInfo {
             get {
                 return ResourceManager.GetString("seeHelpForMoreInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing for substitute. Specify word or use \&quot;-i\&quot; option.
+        /// </summary>
+        internal static string sourceWordSubstituteExceptionMessage {
+            get {
+                return ResourceManager.GetString("sourceWordSubstituteExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Json scheme is invalid. Please check your file.
+        /// </summary>
+        internal static string validateJsonSubstituteExceptionMessage {
+            get {
+                return ResourceManager.GetString("validateJsonSubstituteExceptionMessage", resourceCulture);
             }
         }
     }

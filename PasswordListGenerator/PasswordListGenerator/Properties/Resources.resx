@@ -172,4 +172,13 @@
   <data name="seeHelpForMoreInfo" xml:space="preserve">
     <value>See help for more information</value>
   </data>
+  <data name="loggerWarnSubstituteDictionaryNotSpecifiedMessage" xml:space="preserve">
+    <value>Dictionary file is not specified. Default dictionary will be used</value>
+  </data>
+  <data name="sourceWordSubstituteExceptionMessage" xml:space="preserve">
+    <value>Nothing for substitute. Specify word or use \"-i\" option</value>
+  </data>
+  <data name="validateJsonSubstituteExceptionMessage" xml:space="preserve">
+    <value>Json scheme is invalid. Please check your file</value>
+  </data>
 </root>

@@ -63,7 +63,7 @@ namespace PasswordListGenerator.Substitutions
 			var jsonString = ReadJson();
 			if (IsJsonSchemeNotValid(jsonString))
 			{
-				throw new ValidateJsonSubstituteException("Json scheme is invalid. Please check your file");
+				throw new ValidateJsonSubstituteException(Resources.validateJsonSubstituteExceptionMessage);
 			}
 
 			var availableMethods = GetAvailableMethods(jsonString);
@@ -74,7 +74,7 @@ namespace PasswordListGenerator.Substitutions
 		{
 			if (IsNothingToSubstitute())
 			{
-				throw new SourceWordSubstituteException("Nothing for substitute. Specify word or use \"-i\" option");
+				throw new SourceWordSubstituteException(Resources.sourceWordSubstituteExceptionMessage);
 			}
 
 			if (_isVerbose)
@@ -193,7 +193,7 @@ namespace PasswordListGenerator.Substitutions
 			string result;
 			if (string.IsNullOrEmpty(_dictFilename))
 			{
-				Logger.Warn("Dictionary file is not specified. Default dictionary will be used");
+				Logger.Warn(Resources.loggerWarnSubstituteDictionaryNotSpecifiedMessage);
 				_verboseMsg += $"[DICTIONARY]: default{Environment.NewLine}";
 				return Resources.EnglishLeetDict;
 			}
