@@ -4,6 +4,7 @@ using System.Text;
 using CommandLine;
 using CommandLine.Text;
 using PasswordListGenerator.Combinations;
+using PasswordListGenerator.Properties;
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
@@ -17,29 +18,35 @@ namespace PasswordListGenerator
 		public SubstituteSubOption SubstituteVerb { get; set; }
 
 		[HelpVerbOption]
-		public string GetUsage(string verb)
+		public string GetUsage(string verb, bool isAdditionalHelp = false)
 		{
 			StringBuilder helpStringBuilder;
 			switch (verb)
 			{
 				case "subs":
-					/*helpStringBuilder = new StringBuilder();
-					helpStringBuilder.AppendLine();
-					helpStringBuilder.AppendLine(Resources.additionalUsage);
-					helpStringBuilder.Append(Resources.AdditionalSubsDictUsage);
-					helpStringBuilder.Append(Resources.AdditionalSubsMethodUsage);
-					helpStringBuilder.Append(Resources.AdditionalSubs_i_Usages);*/
-					return HelpText.AutoBuild(SubstituteVerb, current => HelpText.DefaultParsingErrorsHandler(SubstituteVerb, current));
+					helpStringBuilder = new StringBuilder(HelpText.AutoBuild(SubstituteVerb, current => HelpText.DefaultParsingErrorsHandler(SubstituteVerb, current)));
+					if (isAdditionalHelp)
+					{
+						helpStringBuilder.AppendLine();
+						helpStringBuilder.AppendLine(Resources.additionalUsage);
+						helpStringBuilder.Append(Resources.AdditionalSubsDictUsage);
+						helpStringBuilder.Append(Resources.AdditionalSubsMethodUsage);
+						helpStringBuilder.Append(Resources.AdditionalSubs_i_Usages);
+					}
+					return helpStringBuilder.ToString();
 				case "comb":
-					/*helpStringBuilder = new StringBuilder();
-					helpStringBuilder.AppendLine();
-					helpStringBuilder.AppendLine(Resources.additionalUsage);
-					helpStringBuilder.Append(Resources.AdditionalComb_m_Usage);
-					helpStringBuilder.Append(Resources.AdditionalComb_delimiter_Usage);
-					helpStringBuilder.Append(Resources.AdditionalComb_prefix_Usage);
-					helpStringBuilder.Append(Resources.AdditionalComb_suffix_Usage);
-					helpStringBuilder.Append(Resources.AdditionalComb_r_Usage);*/
-					return HelpText.AutoBuild(CombineVerb, current => HelpText.DefaultParsingErrorsHandler(CombineVerb, current));
+					helpStringBuilder = new StringBuilder(HelpText.AutoBuild(CombineVerb, current => HelpText.DefaultParsingErrorsHandler(CombineVerb, current)));
+					if (isAdditionalHelp)
+					{
+						helpStringBuilder.AppendLine();
+						helpStringBuilder.AppendLine(Resources.additionalUsage);
+						helpStringBuilder.Append(Resources.AdditionalComb_m_Usage);
+						helpStringBuilder.Append(Resources.AdditionalComb_delimiter_Usage);
+						helpStringBuilder.Append(Resources.AdditionalComb_prefix_Usage);
+						helpStringBuilder.Append(Resources.AdditionalComb_suffix_Usage);
+						helpStringBuilder.Append(Resources.AdditionalComb_r_Usage);
+					}
+					return helpStringBuilder.ToString();
 				default:
 					return HelpText.AutoBuild(this, verb);
 			}
