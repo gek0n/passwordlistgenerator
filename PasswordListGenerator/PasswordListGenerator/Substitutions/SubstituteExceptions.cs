@@ -1,5 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 using System;
+using CommandLine.Text;
 
 namespace PasswordListGenerator.Substitutions
 {
@@ -12,7 +13,7 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class ParseJsonSubstituteException : VerbOptionException
+	public class ParseJsonSubstituteException : SubstituteException
 	{
 		public ParseJsonSubstituteException(string msg) : base(msg)
 		{ }
@@ -21,7 +22,7 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class ValidateJsonSubstituteException : VerbOptionException
+	public class ValidateJsonSubstituteException : SubstituteException
 	{
 		public ValidateJsonSubstituteException(string msg) : base(msg)
 		{ }
@@ -30,7 +31,7 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class SourceWordSubstituteException : VerbOptionException
+	public class SourceWordSubstituteException : SubstituteException
 	{
 		public SourceWordSubstituteException(string msg) : base(msg)
 		{ }
@@ -39,7 +40,7 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class DeserializeSubstituteException : VerbOptionException
+	public class DeserializeSubstituteException : SubstituteException
 	{
 		public DeserializeSubstituteException(string msg) : base(msg)
 		{ }
@@ -48,12 +49,32 @@ namespace PasswordListGenerator.Substitutions
 		{ }
 	}
 
-	public class IOSubstituteException : VerbOptionException
+	public class IOSubstituteException : SubstituteException
 	{
 		public IOSubstituteException(string msg) : base(msg)
 		{ }
 
 		public IOSubstituteException(string msg, Exception innerException) : base(msg, innerException)
 		{ }
+	}
+
+	public class SubstituteException : VerbOptionException
+	{
+		public SubstituteException(string msg)
+			: base(AddUsageToExceptionMessage(msg))
+		{ }
+
+		public SubstituteException(string msg, Exception innerException)
+			: base(AddUsageToExceptionMessage(msg), innerException)
+		{ }
+
+		private static string AddUsageToExceptionMessage(string msg)
+		{
+			return msg + Environment.NewLine
+						+ Environment.NewLine
+						+ HelpText.AutoBuild(
+							new SubstituteSubOption()
+							, current => HelpText.DefaultParsingErrorsHandler(new SubstituteSubOption(), current));
+		}
 	}
 }
