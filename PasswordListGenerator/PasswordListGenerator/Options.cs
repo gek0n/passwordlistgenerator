@@ -1,5 +1,6 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
+using System.Text;
 using CommandLine;
 using CommandLine.Text;
 using PasswordListGenerator.Combinations;
@@ -9,7 +10,6 @@ namespace PasswordListGenerator
 {
 	public class Options
 	{
-
 		[VerbOption("comb", HelpText = "Combine list of words in list of combinations")]
 		public CombineSubOption CombineVerb { get; set; }
 
@@ -19,7 +19,7 @@ namespace PasswordListGenerator
 		[HelpVerbOption]
 		public string GetUsage(string verb)
 		{
-			//StringBuilder helpStringBuilder;
+			StringBuilder helpStringBuilder;
 			switch (verb)
 			{
 				case "subs":
