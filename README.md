@@ -14,6 +14,8 @@ Type `PasswordListGenerator.exe [verb]` to use some command.
 
 If you want to see help< type `PasswordListGenerator.exe help [verb]`. If `verb` is ommited, help message for application will appear. If `verb` is specified, additional help for `verb` will appear on the screen.
 
+More information about commands see in wiki.
+
 ## <a name="running-the-tests"></a>Running the tests
 For running the tests install @github/nunit in your Visual Studio.
 
