@@ -32,6 +32,6 @@
 		specified in file "dictFilename.json". If file does not specified, 
 		default file wii be used. Default file contains 4 methods: 
 
-			GoodLeet, BadLeet, Cyrillic and Pronunciation. 
+			GoodLeet, MadLeet, Cyrillic and Pronunciation. 
 			
 		Each of this methods contains dictionary for latin alphabet.
