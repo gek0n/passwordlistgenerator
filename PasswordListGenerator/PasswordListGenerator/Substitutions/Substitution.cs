@@ -82,6 +82,9 @@ namespace PasswordListGenerator.Substitutions
 				Console.WriteLine(_verboseMsg);
 			}
 
+			var defaultConsoleEncoding = Console.InputEncoding;
+			Console.InputEncoding = _inEncoding;
+
 			while (true)
 			{
 				if (_isUseStdInput)
@@ -102,6 +105,7 @@ namespace PasswordListGenerator.Substitutions
 					break;
 				}
 			}
+			Console.InputEncoding = defaultConsoleEncoding;
 		}
 
 		private bool TryGetSourceWordFromUserInput()
@@ -114,11 +118,7 @@ namespace PasswordListGenerator.Substitutions
 			{
 				return false;
 			}
-			if (IsInputHasStopped())
-			{
-				return false;
-			}
-			return true;
+			return !IsInputHasStopped();
 		}
 
 		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
