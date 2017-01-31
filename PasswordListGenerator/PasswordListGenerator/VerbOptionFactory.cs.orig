@@ -1,7 +1,10 @@
 ﻿// Copyright © 2016 Zagurskiy Mikhail. All rights reserved. See License.md in the project root for license information.
 
 using System;
+<<<<<<< HEAD
+=======
 using PasswordListGenerator.Combinations;
+>>>>>>> dev
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
@@ -15,6 +18,12 @@ namespace PasswordListGenerator
 			if (instance == null) return null;
 			switch (verb)
 			{
+<<<<<<< HEAD
+				case "subs":
+					Logger.Debug("Subs verb creating...");
+					var subsOption = (SubstituteSubOption)instance;
+                    return new Substitution(subsOption);
+=======
 				case "comb":
 					Logger.Debug("Comb verb");
 					var combOption = (CombineSubOption)instance;
@@ -24,6 +33,7 @@ namespace PasswordListGenerator
 					Logger.Debug("Subs verb creating...");
 					var subsOption = (SubstituteSubOption)instance;
 					return new Substitution(subsOption);
+>>>>>>> dev
 
 				default:
 					Logger.Debug("Unknown verb");

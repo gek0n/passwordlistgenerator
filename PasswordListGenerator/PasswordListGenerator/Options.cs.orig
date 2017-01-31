@@ -3,17 +3,17 @@
 using System.Text;
 using CommandLine;
 using CommandLine.Text;
+<<<<<<< HEAD
+=======
 using PasswordListGenerator.Combinations;
 using PasswordListGenerator.Properties;
+>>>>>>> dev
 using PasswordListGenerator.Substitutions;
 
 namespace PasswordListGenerator
 {
 	public class Options
 	{
-		[VerbOption("comb", HelpText = "Combine list of words in list of combinations")]
-		public CombineSubOption CombineVerb { get; set; }
-
 		[VerbOption("subs", HelpText = "Substitute all symbols in word with leet letters")]
 		public SubstituteSubOption SubstituteVerb { get; set; }
 

@@ -1,0 +1,23 @@
+--prefix
+		Usi this option if you want specify prefix for every combined string. 
+		By default it has not value.
+		Example:
+			PasswordListGenerator comb -i textFile.txt --prefix a
+
+		<-*textFile content*->
+			0
+			1
+			2
+
+		Output:
+			a0 1
+			a0 2
+			a1 0
+			a1 2
+			a2 0
+			a2 1
+
+		If you want to use not alphanumeric symbols as prefix, then you better 
+		should use "" (double quotes) to specify the symbols.
+		Example:
+			PasswordListGenerator comb -i textFile.txt --prefix="<|>"

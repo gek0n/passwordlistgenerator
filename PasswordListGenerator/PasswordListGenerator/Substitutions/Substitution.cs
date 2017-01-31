@@ -31,18 +31,18 @@ namespace PasswordListGenerator.Substitutions
 		private string _verboseMsg;
 		private Dictionary<char, List<string>> _alphabet;
 
-		public Substitution(SubstituteSubOption subsOption)
+		public Substitution(SubstituteSubOption subOption)
 		{
 			_verboseMsg = "";
-			_sourceWord = subsOption.SourceWord;
-			_method = subsOption.Method?.ToLowerInvariant();
-			_isIgnoreCase = subsOption.IsIgnoreCase;
-			_dictFilename = subsOption.DictFilename;
-			_outFilename = subsOption.OutFilename;
-			_isUseStdInput = subsOption.IsUseStdInput;
-			_isVerbose = subsOption.IsVerbose;
-			_inEncoding = TryGetEncoding(subsOption.InEncoding);
-			_outEncoding = TryGetEncoding(subsOption.OutEncoding);
+			_sourceWord = subOption.SourceWord;
+			_method = subOption.Method?.ToLowerInvariant();
+			_isIgnoreCase = subOption.IsIgnoreCase;
+			_dictFilename = subOption.DictFilename;
+			_outFilename = subOption.OutFilename;
+			_isUseStdInput = subOption.IsUseStdInput;
+			_isVerbose = subOption.IsVerbose;
+			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
+			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
 			_verboseMsg += $"[ENCODING]:{Environment.NewLine}" +
 							$"\tIN: {_inEncoding.BodyName}{Environment.NewLine}" +
 							$"\tOUT: {_outEncoding.BodyName}{Environment.NewLine}";
@@ -63,7 +63,7 @@ namespace PasswordListGenerator.Substitutions
 			var jsonString = ReadJson();
 			if (IsJsonSchemeNotValid(jsonString))
 			{
-				throw new ValidateJsonSubstituteException("Json scheme is invalid. Please check your file");
+				throw new ValidateJsonSubstituteException(Resources.validateJsonSubstituteExceptionMessage);
 			}
 
 			var availableMethods = GetAvailableMethods(jsonString);
@@ -74,13 +74,16 @@ namespace PasswordListGenerator.Substitutions
 		{
 			if (IsNothingToSubstitute())
 			{
-				throw new SourceWordSubstituteException("Nothing for substitute. Specify word or use \"-i\" option");
+				throw new SourceWordSubstituteException(Resources.sourceWordSubstituteExceptionMessage);
 			}
 
 			if (_isVerbose)
 			{
 				Console.WriteLine(_verboseMsg);
 			}
+
+			var defaultConsoleEncoding = Console.InputEncoding;
+			Console.InputEncoding = _inEncoding;
 
 			while (true)
 			{
@@ -102,6 +105,7 @@ namespace PasswordListGenerator.Substitutions
 					break;
 				}
 			}
+			Console.InputEncoding = defaultConsoleEncoding;
 		}
 
 		private bool TryGetSourceWordFromUserInput()
@@ -114,12 +118,10 @@ namespace PasswordListGenerator.Substitutions
 			{
 				return false;
 			}
-			if (IsInputHasStopped())
-			{
-				return false;
-			}
-			return true;
+			return !IsInputHasStopped();
 		}
+
+		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
 
 		private bool TryGetSubstitutionsForSourceWord()
 		{
@@ -129,8 +131,8 @@ namespace PasswordListGenerator.Substitutions
 
 			try
 			{
-				var result = GetSubstitutions(substitutableWords, _alphabet);
-				ReturnResult(result);
+				var substitutions = GetSubstitutions(substitutableWords, _alphabet);
+				ReturnResult(substitutions);
 			}
 			catch (NotInTheDictionarySubstituteException exception)
 			{
@@ -144,7 +146,13 @@ namespace PasswordListGenerator.Substitutions
 			return true;
 		}
 
-		private bool IsInputHasStopped() => string.IsNullOrEmpty(_sourceWord);
+		private string[] SplitToLiterals(string source)
+		{
+			return Regex
+				.Split(source, string.Empty)
+				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
+		}
 
 		private bool IsNothingToSubstitute() => string.IsNullOrEmpty(_sourceWord) && !_isUseStdInput;
 
@@ -159,19 +167,19 @@ namespace PasswordListGenerator.Substitutions
 			return substitutableWords.Select(word => word.Aggregate((i, s) => i + s));
 		}
 
-		private void ReturnResult(IEnumerable<string> result)
+		private void ReturnResult(IEnumerable<string> collection)
 		{
 			try
 			{
 				if (!string.IsNullOrEmpty(_outFilename))
 				{
 					var stream = new StreamWriter(_outFilename, _isUseStdInput, _outEncoding);
-					WriteResultToStream(result, stream.WriteLine);
+					OutputHelper.WriteToStream(collection, stream.WriteLine);
 					stream.Close();
 				}
 				else
 				{
-					WriteResultToStream(result, Console.WriteLine);
+					OutputHelper.WriteToStream(collection, Console.WriteLine);
 				}
 			}
 			catch (IOException exception)
@@ -180,41 +188,12 @@ namespace PasswordListGenerator.Substitutions
 			}
 		}
 
-		private static void WriteResultToStream(IEnumerable<string> result, Action<string> writeLine)
-		{
-			foreach (var s in result)
-			{
-				writeLine(s);
-			}
-		}
-
-		private string[] SplitToLiterals(string source)
-		{
-			return Regex
-				.Split(source, string.Empty)
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-		}
-
-		private Encoding TryGetEncoding(string encoding)
-		{
-			try
-			{
-				return Encoding.GetEncoding(encoding);
-			}
-			catch (ArgumentException)
-			{
-				Logger.WarnAndPrint($"Can't using {encoding} encoding. Fallback to utf-8");
-				return Encoding.UTF8;
-			}
-		}
-
 		private string ReadJson()
 		{
 			string result;
 			if (string.IsNullOrEmpty(_dictFilename))
 			{
-				Logger.Warn("Dictionary file is not specified. Default dictionary will be used");
+				Logger.Warn(Resources.loggerWarnSubstituteDictionaryNotSpecifiedMessage);
 				_verboseMsg += $"[DICTIONARY]: default{Environment.NewLine}";
 				return Resources.EnglishLeetDict;
 			}

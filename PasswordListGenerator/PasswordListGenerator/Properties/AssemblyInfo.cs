@@ -10,8 +10,8 @@ using CommandLine;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PasswordListGenerator")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
-[assembly: AssemblyInformationalVersion("1.0")]
+[assembly: AssemblyCopyright("Copyright © 2016 Zagurskiy Mikhail")]
+[assembly: AssemblyInformationalVersion("1.1")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,7 @@ using CommandLine;
 // from CommandLineParser.Text
 [assembly: AssemblyLicense(
 	"\nThis is free software. You may redistribute copies of it under the terms of",
-	"the MIT License <link_here>")]
+	"the MIT License")]
 [assembly: AssemblyUsage(
 	"\nUsage: PasswordListGenerator <command> [keys] required_value")]
 
@@ -41,5 +41,5 @@ using CommandLine;
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.1.*")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

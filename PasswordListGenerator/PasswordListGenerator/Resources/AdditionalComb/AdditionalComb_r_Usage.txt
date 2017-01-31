@@ -1,0 +1,21 @@
+-r, --repetition
+		Use this option if you want to include variants of combination, that 
+		contains repetitions of source symbols.
+		Example:
+			PasswordListGenerator comb -i textFile.txt -r
+
+		<-*textFile content*->
+			0
+			1
+			2
+
+		Output:
+			0 0
+			0 1
+			0 2
+			1 0
+			1 1
+			1 2
+			2 0
+			2 1
+			2 2

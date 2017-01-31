@@ -1,5 +1,0 @@
--m, --method
-		Use this option to specify method, that containing dictionaty of symbols with all possible substitutions
-		for each. If you specify file with user dictionary, then you must use methods, written in this file
-		(see -d option). If method does not specified, default method will be used. First method in dictionary
-		will be used as default. In default file "GoodLeet" method is used by default.

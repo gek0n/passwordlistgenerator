@@ -20,7 +20,7 @@ namespace PasswordListGeneratorTest
 		[SetUp]
 		public void Init()
 		{
-			Thread.Sleep(2000); //Try to bypass license checker for NewthonJson (can't run more then 10 tests once)
+			Thread.Sleep(2000);
 		}
 
 		#region SourceWordTests
@@ -432,12 +432,11 @@ namespace PasswordListGeneratorTest
 				"testDict1.txt"
 			};
 
-			SubstituteSubOption subsOptions;
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				try
 				{
-					subsOptions = ParseSubOptions(args);
+					var subsOptions = ParseSubOptions(args);
 					var subsInstance = new Substitution(subsOptions);
 				}
 				catch (VerbOptionException e)
