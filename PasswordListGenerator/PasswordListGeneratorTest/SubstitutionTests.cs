@@ -432,12 +432,11 @@ namespace PasswordListGeneratorTest
 				"testDict1.txt"
 			};
 
-			SubstituteSubOption subsOptions;
 			using (var consoleOutput = new ConsoleOutput())
 			{
 				try
 				{
-					subsOptions = ParseSubOptions(args);
+					var subsOptions = ParseSubOptions(args);
 					var subsInstance = new Substitution(subsOptions);
 				}
 				catch (VerbOptionException e)
