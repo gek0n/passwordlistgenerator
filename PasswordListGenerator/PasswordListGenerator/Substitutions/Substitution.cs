@@ -23,6 +23,7 @@ namespace PasswordListGenerator.Substitutions
 		private readonly string _dictFilename;
 		private readonly string _outFilename;
 		private readonly bool _isUseStdInput;
+		private readonly bool _isSkipUnknownSymbols;
 		private readonly bool _isVerbose;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
@@ -40,6 +41,7 @@ namespace PasswordListGenerator.Substitutions
 			_dictFilename = subOption.DictFilename;
 			_outFilename = subOption.OutFilename;
 			_isUseStdInput = subOption.IsUseStdInput;
+			_isSkipUnknownSymbols = subOption.IsSkipUnknownSymbols;
 			_isVerbose = subOption.IsVerbose;
 			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
 			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
@@ -50,6 +52,7 @@ namespace PasswordListGenerator.Substitutions
 			Logger.Debug($"wordToSub = {_sourceWord}" +
 						$"method = {_method}" +
 						$"IsIgnoreCase = {_isIgnoreCase}" +
+						$"IsSkipUnknownSymbols = {_isSkipUnknownSymbols}" +
 						$"dictFilename = {_dictFilename}" +
 						$"outFilename = {_outFilename}" +
 						$"inEncoding = {_inEncoding}" +
@@ -288,6 +291,10 @@ namespace PasswordListGenerator.Substitutions
 			List<string> colletion;
 			if (!subsSymbols.TryGetValue(key, out colletion))
 			{
+				if (_isSkipUnknownSymbols)
+				{
+					return result;
+				}
 				throw new NotInTheDictionarySubstituteException($"The symbol \"{key}\" is not in the dictionary. Please specify other dictionary or use ignore-case option");
 			}
 			foreach (var symbol in colletion)

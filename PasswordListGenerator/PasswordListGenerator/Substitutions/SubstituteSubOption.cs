@@ -24,6 +24,9 @@ namespace PasswordListGenerator.Substitutions
 		[Option('i', Required = false, HelpText = "Use std input to get words for substitution")]
 		public bool IsUseStdInput { get; set; }
 
+		[Option('s', "skip", Required = false, HelpText = "Skip symbols if not in the dictionary")]
+		public bool IsSkipUnknownSymbols { get; set; }
+
 		[Option('v', "verbose", Required = false, HelpText = "Show detailed substitute module configuration")]
 		public bool IsVerbose { get; set; }
 
