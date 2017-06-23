@@ -1,7 +1,7 @@
 # PasswordListGenerator
 This is little console application, that can help with make passwords list from list of keywords, and do some accompanying stuff.
 
-##Table of contents
+## Table of contents
 * [Usage](#usage)
 * [Running the tests](#running-the-tests)
 * [Author](#author)
