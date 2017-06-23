@@ -27,6 +27,9 @@ namespace PasswordListGenerator.Substitutions
 		[Option('s', "skip", Required = false, HelpText = "Skip symbols if not in the dictionary")]
 		public bool IsSkipUnknownSymbols { get; set; }
 
+		[Option("letters", Required = false, HelpText = "Substitute only specified symbols")]
+		public string LettersForSubstitution { get; set; }
+
 		[Option('v', "verbose", Required = false, HelpText = "Show detailed substitute module configuration")]
 		public bool IsVerbose { get; set; }
 

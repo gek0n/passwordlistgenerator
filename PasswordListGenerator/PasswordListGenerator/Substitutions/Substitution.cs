@@ -24,6 +24,7 @@ namespace PasswordListGenerator.Substitutions
 		private readonly string _outFilename;
 		private readonly bool _isUseStdInput;
 		private readonly bool _isSkipUnknownSymbols;
+		private readonly string _lettersForSubstitution;
 		private readonly bool _isVerbose;
 		private readonly Encoding _inEncoding;
 		private readonly Encoding _outEncoding;
@@ -42,6 +43,7 @@ namespace PasswordListGenerator.Substitutions
 			_outFilename = subOption.OutFilename;
 			_isUseStdInput = subOption.IsUseStdInput;
 			_isSkipUnknownSymbols = subOption.IsSkipUnknownSymbols;
+			_lettersForSubstitution = _isIgnoreCase ? subOption.LettersForSubstitution.ToUpper() : subOption.LettersForSubstitution;
 			_isVerbose = subOption.IsVerbose;
 			_inEncoding = EncodingHelper.TryGetEncoding(subOption.InEncoding);
 			_outEncoding = EncodingHelper.TryGetEncoding(subOption.OutEncoding);
@@ -85,9 +87,6 @@ namespace PasswordListGenerator.Substitutions
 				Console.WriteLine(_verboseMsg);
 			}
 
-			var defaultConsoleEncoding = Console.InputEncoding;
-			Console.InputEncoding = _inEncoding;
-
 			while (true)
 			{
 				if (_isUseStdInput)
@@ -108,7 +107,6 @@ namespace PasswordListGenerator.Substitutions
 					break;
 				}
 			}
-			Console.InputEncoding = defaultConsoleEncoding;
 		}
 
 		private bool TryGetSourceWordFromUserInput()
@@ -289,6 +287,10 @@ namespace PasswordListGenerator.Substitutions
 			var result = new List<string[]>();
 			var key = _isIgnoreCase ? char.ToUpper(word[index][0]) : word[index][0];
 			List<string> colletion;
+			if (!_lettersForSubstitution.Contains(key))
+			{
+				return result;
+			}
 			if (!subsSymbols.TryGetValue(key, out colletion))
 			{
 				if (_isSkipUnknownSymbols)

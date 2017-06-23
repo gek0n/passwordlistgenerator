@@ -437,6 +437,7 @@ namespace PasswordListGeneratorTest
 				try
 				{
 					var subsOptions = ParseSubOptions(args);
+					// ReSharper disable once UnusedVariable
 					var subsInstance = new Substitution(subsOptions);
 				}
 				catch (VerbOptionException e)
@@ -566,6 +567,102 @@ namespace PasswordListGeneratorTest
 
 		#endregion
 
+		#region SkipSymbolsTests
+
+		[Test]
+		[Category("SkipSymbols")]
+		public void SkipManySymbols_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C!@#$%qwert",
+				"-s"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C!@#$%qwert\r\n[!@#$%qwert\r\n{!@#$%qwert\r\n(!@#$%qwert\r\n<!@#$%qwert\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("SkipSymbols")]
+		public void SkipOneSymbol_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C!",
+				"-s"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C!\r\n[!\r\n{!\r\n(!\r\n<!\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("SkipSymbols")]
+		public void SkipOneSymbolInMiddleWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C!C",
+				"-s"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C!C\r\n[!C\r\n{!C\r\n(!C\r\n<!C\r\n" +
+							"C![\r\nC!{\r\nC!(\r\nC!<\r\n[![\r\n" +
+							"[!{\r\n[!(\r\n[!<\r\n{![\r\n{!{\r\n" +
+							"{!(\r\n{!<\r\n(![\r\n(!{\r\n(!(\r\n" +
+							"(!<\r\n<![\r\n<!{\r\n<!(\r\n<!<\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("SkipSymbols")]
+		public void SkipManySymbolsInMiddleWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"C!_pouiC",
+				"-s"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "C!_pouiC\r\n[!_pouiC\r\n{!_pouiC\r\n(!_pouiC\r\n<!_pouiC\r\n" +
+							"C!_poui[\r\nC!_poui{\r\nC!_poui(\r\nC!_poui<\r\n[!_poui[\r\n" +
+							"[!_poui{\r\n[!_poui(\r\n[!_poui<\r\n{!_poui[\r\n{!_poui{\r\n" +
+							"{!_poui(\r\n{!_poui<\r\n(!_poui[\r\n(!_poui{\r\n(!_poui(\r\n" +
+							"(!_poui<\r\n<!_poui[\r\n<!_poui{\r\n<!_poui(\r\n<!_poui<\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		#endregion
+
 		#region Verbose
 
 		[Test]
@@ -619,6 +716,262 @@ namespace PasswordListGeneratorTest
 			}
 		}
 		#endregion
+
+		#region UnicodeWithSkip
+
+		[Test]
+		[Category("SkipSymbols")]
+		public void SkipUnicodeSymbol_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"©",
+				"-s"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "©\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				Assert.That(consoleOutput.GetOuput().Contains(expected), Is.True);
+			}
+		}
+
+		#endregion
+
+		#region LettersForSubstitution
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLetterForSubstitutionOneLetterLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"Q",
+				"--letters",
+				"Q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "Q\r\n(,)\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLowerLetterForSubstitutionOneLetterLengthWord_ShouldReturnSourceWord()
+		{
+			var args = new[]
+			{
+				"subs",
+				"Q",
+				"--letters",
+				"q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "Q\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLetterForSubstitutionOneLetterLengthWordLower_ShouldReturnSourceWord()
+		{
+			var args = new[]
+			{
+				"subs",
+				"q",
+				"--letters",
+				"Q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "q\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLowerLetterForSubstitutionOneLetterLengthWordIgnoreCase_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"Q",
+				"--ignore-case",
+				"--letters",
+				"q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "Q\r\n(,)\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void ManyLetterForSubstitutionManyLetterLengthWordIgnoreCase_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"KPQEPK",
+				"--ignore-case",
+				"--letters",
+				"qE"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "KPQEPK\r\nKP(,)EPK\r\nKPQ3PK\r\nKP(,)3PK\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLetterForSubstitutionOneOtherLetterLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"Q",
+				"--letters",
+				"P"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "Q\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLetterForSubstitutionManyLettersLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"PQOIUQYHQNQK",
+				"--letters",
+				"Q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "PQOIUQYHQNQK\r\nP(,)OIUQYHQNQK\r\nPQOIU(,)YHQNQK\r\n" +
+							"P(,)OIU(,)YHQNQK\r\nPQOIUQYH(,)NQK\r\nP(,)OIUQYH(,)NQK\r\n" +
+							"PQOIU(,)YH(,)NQK\r\nP(,)OIU(,)YH(,)NQK\r\nPQOIUQYHQN(,)K\r\n" +
+							"P(,)OIUQYHQN(,)K\r\nPQOIU(,)YHQN(,)K\r\nP(,)OIU(,)YHQN(,)K\r\n" +
+							"PQOIUQYH(,)N(,)K\r\nP(,)OIUQYH(,)N(,)K\r\nPQOIU(,)YH(,)N(,)K\r\n" +
+							"P(,)OIU(,)YH(,)N(,)K\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void OneLetterForSubstitutionManyOtherLettersLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"ASDFGHL",
+				"--letters",
+				"Q"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "ASDFGHL\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void ManyLetterForSubstitutionManyLettersLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"PQOEK",
+				"--letters",
+				"QE"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "PQOEK\r\nP(,)OEK\r\nPQO3K\r\nP(,)O3K\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		[Test]
+		[Category("LettersForSubstitution")]
+		public void ManyLetterForSubstitutionManyOtherLettersLengthWord_ShouldReturnSubstitutions()
+		{
+			var args = new[]
+			{
+				"subs",
+				"ASDFGHL",
+				"--letters",
+				"QPOI"
+			};
+			var subsOptions = ParseSubOptions(args);
+			var expected = "ASDFGHL\r\n";
+			var subsInstance = new Substitution(subsOptions);
+			using (var consoleOutput = new ConsoleOutput())
+			{
+				subsInstance.Process();
+				var actual = consoleOutput.GetOuput();
+				Assert.That(actual, Is.EqualTo(expected));
+			}
+		}
+
+		#endregion
+
 
 		private static SubstituteSubOption ParseSubOptions(string[] args)
 		{
